@@ -4,6 +4,7 @@
 
 #include "pupa.h"
 #include "pupa_shm.h"
+#include "pupa_cache.h"
 
 int pupa_shm_init(pupa_shm *shm, int op_type)
 {
@@ -66,6 +67,16 @@ int pupa_shm_init(pupa_shm *shm, int op_type)
     }
 
     close(fd);
+
+    return PUPA_OK;
+}
+
+
+int pupa_shm_sync(pupa_ctx *ctx)
+{
+    if (msync(&ctx->cache_hdr, ctx->shm.size, MS_SYNC) != 0) {
+        return PUPA_ERROR;
+    }
 
     return PUPA_OK;
 }

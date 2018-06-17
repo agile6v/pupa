@@ -16,5 +16,6 @@ typedef struct {
 
 
 int pupa_shm_init(pupa_shm *shm, int op_type);
+int pupa_shm_sync(pupa_ctx *ctx);
 
 #endif //_PUPA_SHM_H
