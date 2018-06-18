@@ -5,8 +5,12 @@
 #ifndef _PUPA_CONFIG_H
 #define _PUPA_CONFIG_H
 
-#define PUPA_OK         0
-#define PUPA_ERROR     -1
+
+#define PUPA_OP_TYPE_READ    1
+#define PUPA_OP_TYPE_WRITE   2
+
+#define PUPA_OK          0
+#define PUPA_ERROR      -1
 
 #define pupa_string(str)     { sizeof(str) - 1, (char *) str }
 

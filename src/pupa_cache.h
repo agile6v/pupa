@@ -27,6 +27,7 @@ typedef struct {
     int32_t    value_offset;
 
     uint16_t   key_len;
+    uint16_t   value_len;
 } pupa_cache_item;
 
 
