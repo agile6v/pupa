@@ -43,6 +43,7 @@ typedef struct {
     pupa_cache_section  key_section;
     pupa_cache_section  value_section;
     pupa_cache_item    *cache_items;
+    pupa_cache_item    *cache_items_mirror;
 } pupa_cache_hdr;
 
 
