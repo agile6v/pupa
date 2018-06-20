@@ -49,13 +49,70 @@ int32_t pupa_cache_init(pupa_cache_hdr *cache_hdr, int key_count)
 }
 
 
+int pupa_cache_del(pupa_ctx *ctx, pupa_str_t *key)
+{
+    return PUPA_OK;
+}
+
+
+int pupa_cache_get(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
+{
+    char                       *p;
+    pupa_cache_item            *p_cache_item;
+    pupa_cache_section         *p_key_section;
+    pupa_cache_section         *p_item_section;
+    pupa_cache_item_wrapper     cache_item_wrapper;
+
+    p_key_section  = &ctx->cache_hdr->key_section;
+
+    cache_item_wrapper.ctx = ctx;
+    cache_item_wrapper.key_section_offset =
+            (p_key_section->id == PUPA_CACHE_SECTION_ONE) ? \
+             p_key_section->sec1_offset : \
+             p_key_section->sec2_offset;
+    cache_item_wrapper.cache_item.key_offset =
+            key->data - cache_item_wrapper.key_section_offset;
+    cache_item_wrapper.cache_item.key_len = key->len;
+
+    p_item_section = &ctx->cache_hdr->item_section;
+
+    p_cache_item = bsearch(&cache_item_wrapper.cache_item,
+                           &ctx->cache_hdr->cache_items,
+                           p_item_section.used,
+                           sizeof(pupa_cache_item),
+                           pupa_cache_item_compare);
+    if (p_cache_item == NULL) {
+        return PUPA_NOT_FOUND;
+    }
+
+    if (p_cache_item->key_len == 0) {
+        //  TODO: ERROR LOG
+        return PUPA_ERROR;
+    }
+
+
+    if (ctx->cache_hdr->value_section.id == PUPA_CACHE_SECTION_ONE) {
+        p = (char *) ctx->cache_hdr + ctx->cache_hdr->value_section.sec1_offset +
+            cache_item->value_offset + sizeof(int16_t);
+    } else {
+        p = (char *) ctx->cache_hdr + ctx->cache_hdr->value_section.sec2_offset +
+            cache_item->value_offset + sizeof(int16_t);
+    }
+
+    value->data = p;
+    value->len = p_cache_item->value_len;
+
+    return PUPA_OK;
+}
+
+
 int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
 {
-    int              ret;
-    pupa_cache_item *p_cache_item;
-    pupa_cache_item *p_next_cache_items, *p_last_cache_items;
-    pupa_cache_section *p_item_section, *p_key_section;
-    pupa_cache_item_wrapper cache_item_wrapper;
+    int                          ret;
+    pupa_cache_item             *p_cache_item;
+    pupa_cache_item             *p_next_cache_items, *p_last_cache_items;
+    pupa_cache_section          *p_item_section, *p_key_section;
+    pupa_cache_item_wrapper      cache_item_wrapper;
 
     //  generate the mirror of the cache items
     pupa_cache_item_make_mirror(ctx->cache_hdr);
@@ -63,6 +120,7 @@ int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
     p_item_section = &ctx->cache_hdr->item_section;
     p_key_section  = &ctx->cache_hdr->key_section;
 
+    cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
             (p_key_section->id == PUPA_CACHE_SECTION_ONE) ? \
              p_key_section->sec1_offset : \
@@ -124,10 +182,12 @@ static int pupa_cache_item_add(pupa_cache_hdr *cache_hdr,
         return PUPA_OVERFLOW;
     }
 
+    p = PUPA_CACHE_KEY_GET_FREE_ADDR(cache_hdr);
+
     if ((cache_hdr->key_section.used + (key->len + 1)) >
             cache_hdr->key_section.size)
     {
-        ret = pupa_cache_key_compaction(cache_hdr, key);
+        ret = pupa_cache_key_compaction(cache_hdr, key, &p);
         if (ret != PUPA_OK) {
             return ret;
         }
@@ -136,14 +196,6 @@ static int pupa_cache_item_add(pupa_cache_hdr *cache_hdr,
     //  copy the data of the key to the cache
     cache_item->key_len = key->len;
     cache_item->key_offset = cache_hdr->key_section.used;
-
-    if (cache_hdr->key_section.id == PUPA_CACHE_SECTION_ONE) {
-        p = (char *) cache_hdr + cache_hdr->key_section.sec1_offset +
-                cache_item->key_offset;
-    } else {
-        p = (char *) cache_hdr + cache_hdr->key_section.sec2_offset +
-                cache_item->key_offset;
-    }
 
     memcpy(p, key->data, key->len);
     p += key->len;
@@ -246,7 +298,7 @@ static int pupa_cache_item_compare(const void *p1, const void *p2)
 
 
 static int pupa_cache_key_compaction(pupa_cache_hdr *cache_hdr,
-                                     pupa_str_t *key)
+                                     pupa_str_t *key, char **address)
 {
     int i;
     char *p;
@@ -254,11 +306,7 @@ static int pupa_cache_key_compaction(pupa_cache_hdr *cache_hdr,
     pupa_cache_item *p_cache_items;
     pupa_cache_item *p_cache_item;
 
-    if (cache_hdr->key_section.id == PUPA_CACHE_SECTION_ONE) {
-        p = (char *) cache_hdr + cache_hdr->key_section.sec2_offset;
-    } else {
-        p = (char *) cache_hdr + cache_hdr->key_section.sec1_offset;
-    }
+    p = PUPA_CACHE_KEY_GET_MIRROR_ADDR(cache_hdr);
 
     used_size = 0;
     for (i = 0; i < cache_hdr->item_section.used; i++) {
@@ -272,6 +320,8 @@ static int pupa_cache_key_compaction(pupa_cache_hdr *cache_hdr,
     if ((key->len + 1 + used_size) > cache_hdr->key_section.size) {
         return PUPA_OVERFLOW;
     }
+
+    *address = p;
 /*
     memcpy(p, key->data, key->len);
     p += key->len;

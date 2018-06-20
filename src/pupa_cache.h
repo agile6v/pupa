@@ -13,6 +13,19 @@
 #define PUPA_CACHE_SECTION_ONE      1
 #define PUPA_CACHE_SECTION_TWO      2
 
+#define PUPA_CACHE_KEY_GET_MIRROR_ADDR(cache_hdr) \
+    (cache_hdr->key_section.id == PUPA_CACHE_SECTION_ONE) ? \
+        (char *) cache_hdr + cache_hdr->key_section.sec2_offset : \
+        (char *) cache_hdr + cache_hdr->key_section.sec1_offset
+
+
+#define PUPA_CACHE_KEY_GET_FREE_ADDR(cache_hdr) \
+    (cache_hdr->key_section.id == PUPA_CACHE_SECTION_ONE) ? \
+        (char *) cache_hdr + cache_hdr->key_section.sec1_offset + \
+                cache_hdr->key_section.used : \
+        (char *) cache_hdr + cache_hdr->key_section.sec2_offset + \
+                cache_hdr->key_section.used
+
 typedef struct {
     uint8_t     id;
     size_t      size;
@@ -54,6 +67,8 @@ typedef struct {
 
 
 int32_t pupa_cache_init(pupa_cache_hdr *cache_hdr, int key_count);
+int pupa_cache_del(pupa_ctx *ctx, pupa_str_t *key);
+int pupa_cache_get(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value);
 int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value);
 
 #endif //_PUPA_CTX_H

@@ -37,7 +37,13 @@ int pupa_init(char *path, int key_count, int op_type)
 
 int pupa_get(pupa_str_t *key, pupa_str_t *value)
 {
-    pupa_str_set(value, "Hello pupa!");
+    int ret;
+
+    ret = pupa_cache_get(&pupa_ctx, key);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
     return PUPA_OK;
 }
 

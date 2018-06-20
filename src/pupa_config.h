@@ -12,6 +12,7 @@
 #define PUPA_OK          0
 #define PUPA_ERROR      -1
 #define PUPA_OVERFLOW   -2
+#define PUPA_NOT_FOUND  -3
 
 #define pupa_string(str)     { sizeof(str) - 1, (char *) str }
 
