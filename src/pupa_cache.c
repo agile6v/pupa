@@ -8,6 +8,7 @@
 static int pupa_cache_item_compare(const void *p1, const void *p2);
 static void pupa_cache_item_make_mirror(pupa_cache_hdr *cache_hdr);
 
+
 int32_t pupa_cache_init(pupa_cache_hdr *cache_hdr, int key_count)
 {
     int32_t  offset;
@@ -59,17 +60,13 @@ int pupa_cache_get(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
 {
     char                       *p;
     pupa_cache_item            *p_cache_item;
-    pupa_cache_section         *p_key_section;
     pupa_cache_section         *p_item_section;
     pupa_cache_item_wrapper     cache_item_wrapper;
 
-    p_key_section  = &ctx->cache_hdr->key_section;
-
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
-            (p_key_section->id == PUPA_CACHE_SECTION_ONE) ? \
-             p_key_section->sec1_offset : \
-             p_key_section->sec2_offset;
+        PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
+
     cache_item_wrapper.cache_item.key_offset =
             key->data - cache_item_wrapper.key_section_offset;
     cache_item_wrapper.cache_item.key_len = key->len;
@@ -110,7 +107,6 @@ int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
 {
     int                          ret;
     pupa_cache_item             *p_cache_item;
-    pupa_cache_item             *p_next_cache_items, *p_last_cache_items;
     pupa_cache_section          *p_item_section, *p_key_section;
     pupa_cache_item_wrapper      cache_item_wrapper;
 
@@ -122,14 +118,10 @@ int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
 
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
-            (p_key_section->id == PUPA_CACHE_SECTION_ONE) ? \
-             p_key_section->sec1_offset : \
-             p_key_section->sec2_offset;
+        PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
     cache_item_wrapper.cache_item.key_offset =
             key->data - cache_item_wrapper.key_section_offset;
     cache_item_wrapper.cache_item.key_len = key->len;
-
-    find_cache_item.key_offset = key->data - p_key_section;
 
     p_cache_item = bsearch(&cache_item_wrapper.cache_item,
                            &ctx->cache_hdr->cache_items_mirror,
@@ -155,6 +147,13 @@ int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value)
 
     // Switch the cache item section if this key doesn't exist
     if (p_cache_item == NULL) {
+        cache_item_wrapper.key_section_offset =
+            PUPA_CACHE_GET_KEY_MIRROR_OFFSET(ctx->cache_hdr->item_section);
+        qsort_r(ctx->cache_hdr->cache_items_mirror,
+                ctx->cache_hdr->item_section.used,
+                sizeof(pupa_cache_item), _pupa_cache_item_compare,
+                &cache_item_wrapper);
+
         p_item_section->id = (p_item_section->id == PUPA_CACHE_SECTION_ONE) ? \
                              PUPA_CACHE_SECTION_TWO : p_item_section->id;
         p_item_section->used++;
@@ -370,21 +369,38 @@ static int pupa_cache_key_compaction(pupa_cache_hdr *cache_hdr,
     return PUPA_OK;
 }
 
+
 static void pupa_cache_item_make_mirror(pupa_cache_hdr *cache_hdr)
 {
-    pupa_cache_item *p_cache_items;
+    char                *p;
+    pupa_cache_item     *p_cache_items;
 
-    if (cache_hdr->item_section.id == PUPA_CACHE_SECTION_ONE) {
-        p_cache_items = (pupa_cache_item *) ((char *) cache_hdr +
-                cache_hdr->item_section.sec2_offset);
-    } else {
-        p_cache_items = (pupa_cache_item *) ((char *) cache_hdr +
-                cache_hdr->item_section.sec1_offset);
-    }
+    p = PUPA_CACHE_GET_MIRROR_ADDR(cache_hdr, cache_hdr->item_section);
+
+    p_cache_items = (pupa_cache_item *)p;
 
     memcpy(p_cache_items, cache_hdr->cache_items,
            sizeof(pupa_cache_item) * cache_hdr->item_section.used);
 
     cache_hdr->cache_items_mirror = p_cache_items;
+}
+
+
+int pupa_cache_stats(pupa_ctx *ctx, pupa_cache_stats *stat)
+{
+    return PUPA_OK;
+}
+
+
+int pupa_cache_fini(pupa_ctx *ctx)
+{
+    int ret;
+
+    ret = pupa_shm_fini(ctx);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
+    return PUPA_OK;
 }
 

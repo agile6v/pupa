@@ -6,11 +6,14 @@
 #include "pupa_shm.h"
 #include "pupa_cache.h"
 
-int pupa_shm_init(pupa_shm *shm, int op_type)
+int pupa_shm_init(pupa_ctx *ctx, int op_type)
 {
-    int         fd;
-    int         flag;
-    struct stat st;
+    int             fd;
+    int             flag;
+    pupa_shm       *shm;
+    struct stat     st;
+
+    shm = &ctx->shm;
 
     if (op_type == PUPA_OP_TYPE_READ) {
         fd = open(shm->path, O_RDONLY);
@@ -74,7 +77,18 @@ int pupa_shm_init(pupa_shm *shm, int op_type)
 
 int pupa_shm_sync(pupa_ctx *ctx)
 {
-    if (msync(&ctx->cache_hdr, ctx->shm.size, MS_SYNC) != 0) {
+    if (msync(ctx->cache_hdr, ctx->shm.size, MS_SYNC) != 0) {
+        return PUPA_ERROR;
+    }
+
+    return PUPA_OK;
+}
+
+
+int pupa_shm_fini(pupa_ctx *ctx)
+{
+    if (munmap(ctx->cache_hdr, ctx->shm.size) != PUPA_OK) {
+        //  TODO:   error log
         return PUPA_ERROR;
     }
 

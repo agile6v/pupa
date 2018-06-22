@@ -5,6 +5,7 @@
 #ifndef _PUPA_CONFIG_H
 #define _PUPA_CONFIG_H
 
+#include <stdlib.h>
 
 #define PUPA_OP_TYPE_READ    1
 #define PUPA_OP_TYPE_WRITE   2
