@@ -2,10 +2,10 @@
  * Copyright (C) agile6v
  */
 
-#ifndef _PUPA_CTX_H
-#define _PUPA_CTX_H
+#ifndef _PUPA_CACHE_H
+#define _PUPA_CACHE_H
 
-#include "pupa_shm.h"
+#include "pupa_config.h"
 
 #define PUPA_KEY_AVERAGE_LEN        64
 #define PUPA_VALUE_AVERAGE_LEN      256
@@ -48,7 +48,7 @@ typedef struct {
     size_t      used;
     int32_t     sec1_offset;
     int32_t     sec2_offset;
-} pupa_cache_section;
+} pupa_cache_section_t;
 
 
 typedef struct {
@@ -57,43 +57,43 @@ typedef struct {
 
     uint16_t   key_len;
     uint16_t   value_len;
-} pupa_cache_item;
+} pupa_cache_item_t;
 
 
 typedef struct {
-    pupa_cache_item  cache_item;
-    pupa_ctx        *ctx;
+    pupa_cache_section_t  item_section;
+    pupa_cache_section_t  key_section;
+    pupa_cache_section_t  value_section;
+    pupa_cache_item_t    *cache_items;
+    pupa_cache_item_t    *cache_items_mirror;
+} pupa_cache_hdr_t;
+
+
+struct pupa_ctx_s {
+    int               init;  //  initialization switch
+    pupa_shm_t        shm;
+    pupa_cache_hdr_t *cache_hdr;
+};
+
+
+typedef struct {
+    pupa_cache_item_t  cache_item;
+    pupa_ctx_t      *ctx;
     int32_t          key_section_offset;
-} pupa_cache_item_wrapper;
-
-
-typedef struct {
-    pupa_cache_section  item_section;
-    pupa_cache_section  key_section;
-    pupa_cache_section  value_section;
-    pupa_cache_item    *cache_items;
-    pupa_cache_item    *cache_items_mirror;
-} pupa_cache_hdr;
-
-
-typedef struct {
-    int              init;  //  initialization switch
-    pupa_shm         shm;
-    pupa_cache_hdr  *cache_hdr;
-} pupa_ctx;
+} pupa_cache_item_wrapper_t;
 
 
 typedef struct {
 
-} pupa_cache_stats;
+} pupa_cache_stats_t;
 
 
-int32_t pupa_cache_init(pupa_cache_hdr *cache_hdr, int key_count);
-int pupa_cache_fini(pupa_ctx *ctx);
+int32_t pupa_cache_init(pupa_cache_hdr_t *cache_hdr, int key_count);
+int pupa_cache_fini(pupa_ctx_t *ctx);
 
-int pupa_cache_del(pupa_ctx *ctx, pupa_str_t *key);
-int pupa_cache_stats(pupa_ctx *ctx, pupa_cache_stats *stat);
-int pupa_cache_get(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value);
-int pupa_cache_set(pupa_ctx *ctx, pupa_str_t *key, pupa_str_t *value);
+int pupa_cache_del(pupa_ctx_t *ctx, pupa_str_t *key);
+int pupa_cache_stats(pupa_ctx_t *ctx, pupa_cache_stats_t *stat);
+int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
+int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
 
-#endif //_PUPA_CTX_H
+#endif //_PUPA_CACHE_H

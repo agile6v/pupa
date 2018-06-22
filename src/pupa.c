@@ -3,17 +3,15 @@
  */
 
 #include "pupa.h"
-#include "pupa_shm.h"
-#include "pupa_cache.h"
 
-static pupa_ctx   pupa_ctx;
+static pupa_ctx_t   pupa_ctx;
 
 
 int pupa_init(char *path, int key_count, int op_type)
 {
     int             ret;
     int32_t         len;
-    pupa_cache_hdr  cache_hdr = {0};
+    pupa_cache_hdr_t  cache_hdr;
 
     if (pupa_ctx.init) {
         //  TODO:   WARNING LOG
@@ -30,12 +28,12 @@ int pupa_init(char *path, int key_count, int op_type)
         return ret;
     }
 
-    pupa_ctx.cache_hdr = (pupa_cache_hdr *) pupa_ctx.shm.data;
+    pupa_ctx.cache_hdr = (pupa_cache_hdr_t *) pupa_ctx.shm.data;
 
     if (!pupa_ctx.shm.exists) {
         memcpy((void *) pupa_ctx.cache_hdr,
                (void *) &cache_hdr,
-               sizeof(pupa_cache_hdr));
+               sizeof(pupa_cache_hdr_t));
     }
 
     pupa_ctx.init = 1;
@@ -85,8 +83,8 @@ int pupa_del(pupa_str_t *key)
 
 int pupa_stats(pupa_str_t *stat_json)
 {
-    int              ret;
-    pupa_cache_stats stat;
+    int                 ret;
+    pupa_cache_stats_t  stat;
 
     ret = pupa_cache_stats(&pupa_ctx, &stat);
     if (ret != PUPA_OK) {

@@ -2,15 +2,17 @@
  * Copyright (C) agile6v
  */
 
-#include "pupa.h"
-#include "pupa_shm.h"
-#include "pupa_cache.h"
+#include "pupa_config.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
-int pupa_shm_init(pupa_ctx *ctx, int op_type)
+int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
 {
     int             fd;
     int             flag;
-    pupa_shm       *shm;
+    pupa_shm_t     *shm;
     struct stat     st;
 
     shm = &ctx->shm;
@@ -75,7 +77,7 @@ int pupa_shm_init(pupa_ctx *ctx, int op_type)
 }
 
 
-int pupa_shm_sync(pupa_ctx *ctx)
+int pupa_shm_sync(pupa_ctx_t *ctx)
 {
     if (msync(ctx->cache_hdr, ctx->shm.size, MS_SYNC) != 0) {
         return PUPA_ERROR;
@@ -85,7 +87,7 @@ int pupa_shm_sync(pupa_ctx *ctx)
 }
 
 
-int pupa_shm_fini(pupa_ctx *ctx)
+int pupa_shm_fini(pupa_ctx_t *ctx)
 {
     if (munmap(ctx->cache_hdr, ctx->shm.size) != PUPA_OK) {
         //  TODO:   error log

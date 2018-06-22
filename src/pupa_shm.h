@@ -5,18 +5,23 @@
 #ifndef _PUPA_SHM_H
 #define _PUPA_SHM_H
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <stddef.h>
+#include <string.h>
 
-typedef struct {
+struct pupa_shm_s {
     int     fd;
     char   *path;
     void   *data;
     size_t  size;
     char    exists;
-} pupa_shm;
+};
 
 
-int pupa_shm_init(pupa_ctx *ctx, int op_type);
-int pupa_shm_sync(pupa_ctx *ctx);
-int pupa_shm_fini(pupa_ctx *ctx);
+int pupa_shm_init(pupa_ctx_t *ctx, int op_type);
+int pupa_shm_sync(pupa_ctx_t *ctx);
+int pupa_shm_fini(pupa_ctx_t *ctx);
 
 #endif //_PUPA_SHM_H
