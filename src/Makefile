@@ -11,11 +11,11 @@ else ifeq ($(UNAME), Darwin)
 endif
 
 LIB_PATH=/usr/local/lib
-INCLUDE_PATH=/usr/local/include/pupa
+INC_PATH=/usr/local/include/pupa
 
 PUPA_STATIC_OBJS = pupa.o pupa_cache.o pupa_shm.o
 PUPA_SHARED_OBJS = pupa_cache.lo pupa_shm.lo pupa.lo
-HEADER_FILES = pupa.h pupa_config.h
+HEADER_FILES = pupa.h pupa_config.h pupa_cache.h pupa_shm.h
 
 ALL_OBJS = $(PUPA_STATIC_OBJS) $(PUPA_SHARED_OBJS)
 
@@ -42,16 +42,16 @@ $(STATIC_LIBS):
 
 install:
 	mkdir -p $(LIB_PATH)
-	mkdir -p $(INCLUDE_PATH)
+	mkdir -p $(INC_PATH)
 
 	install -m 755 $(SHARED_LIBS) $(LIB_PATH)
-	install -m 644 $(HEADER_FILES) $(INCLUDE_PATH)
+	install -m 644 $(HEADER_FILES) $(INC_PATH)
 	
 uninstall:
 	rm -f $(LIB_PATH)/$(SHARED_LIBS)
-	rm -rf $(INCLUDE_PATH)
+	rm -rf $(INC_PATH)
 
 clean:
-	rm -f *.o *.so *.lo
+	rm -f *.o *.so *.lo *.a
 
 .PHONY: install clean
