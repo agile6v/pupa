@@ -38,7 +38,33 @@ int pupa_init(char *path, int key_count, int op_type)
                sizeof(pupa_cache_hdr_t));
     }
 
+    pupa_ctx.cache_items = (pupa_cache_item_t *)
+            PUPA_CACHE_GET_ADDR(pupa_ctx.cache_hdr,
+                                pupa_ctx.cache_hdr->item_section);
+
     pupa_ctx.init = 1;
+
+    //  Debug Information
+    DEBUG_LOG("------- PUPA Cache Item-------");
+    DEBUG_LOG("size: %ld",     pupa_ctx.cache_hdr->item_section.size);
+    DEBUG_LOG("used: %ld",     pupa_ctx.cache_hdr->item_section.used);
+    DEBUG_LOG("id: %d",        pupa_ctx.cache_hdr->item_section.id);
+    DEBUG_LOG("section-1: %d", pupa_ctx.cache_hdr->item_section.sec1_offset);
+    DEBUG_LOG("section-2: %d", pupa_ctx.cache_hdr->item_section.sec2_offset);
+
+    DEBUG_LOG("------- PUPA Cache Key-------");
+    DEBUG_LOG("size: %ld",     pupa_ctx.cache_hdr->key_section.size);
+    DEBUG_LOG("used: %ld",     pupa_ctx.cache_hdr->key_section.used);
+    DEBUG_LOG("id: %d",        pupa_ctx.cache_hdr->key_section.id);
+    DEBUG_LOG("section-1: %d", pupa_ctx.cache_hdr->key_section.sec1_offset);
+    DEBUG_LOG("section-2: %d", pupa_ctx.cache_hdr->key_section.sec2_offset);
+
+    DEBUG_LOG("------- PUPA Cache Value-------");
+    DEBUG_LOG("size: %ld",     pupa_ctx.cache_hdr->value_section.size);
+    DEBUG_LOG("used: %ld",     pupa_ctx.cache_hdr->value_section.used);
+    DEBUG_LOG("id: %d",        pupa_ctx.cache_hdr->value_section.id);
+    DEBUG_LOG("section-1: %d", pupa_ctx.cache_hdr->value_section.sec1_offset);
+    DEBUG_LOG("section-2: %d", pupa_ctx.cache_hdr->value_section.sec2_offset);
 
     return PUPA_OK;
 }
