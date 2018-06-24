@@ -50,15 +50,11 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
     } else {
         flag = O_CREAT | O_RDWR;
 
-        DEBUG_LOG("1");
-
         fd = open(shm->path, flag, 0666);
         if (fd == PUPA_ERROR) {
             DEBUG_LOG("Failed to open %s, errno: %d", shm->path, errno);
             return PUPA_ERROR;
         }
-
-        DEBUG_LOG("2");
 
         if (fstat(fd, &st) == PUPA_ERROR) {
             DEBUG_LOG("Failed to fstat %s, errno: %d", shm->path, errno);
@@ -66,10 +62,16 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
             return PUPA_ERROR;
         }
 
-        DEBUG_LOG("3");
-
         shm->exists = (st.st_size == 0) ? 0 : 1;
         shm->size = (st.st_size == 0) ? shm->size : st.st_size;
+
+        if (!shm->exists) {
+            if (ftruncate(fd, shm->size) == PUPA_ERROR) {
+                DEBUG_LOG("Failed to ftruncate %s, size: %ld, errno: %d",
+                          shm->path, shm->size, errno);
+                return PUPA_ERROR;
+            }
+        }
 
         shm->data = mmap(NULL, shm->size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
         if (shm->data == MAP_FAILED) {
@@ -78,13 +80,9 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
             close(fd);
             return PUPA_ERROR;
         }
-
-        DEBUG_LOG("4: %p", shm->data);
     }
 
     close(fd);
-
-    DEBUG_LOG("5");
 
     return PUPA_OK;
 }

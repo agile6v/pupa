@@ -84,11 +84,13 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
                            sizeof(pupa_cache_item_t),
                            pupa_cache_item_compare);
     if (p_cache_item == NULL) {
+        DEBUG_LOG("Not found key: %.*s", key->len, key->data);
         return PUPA_NOT_FOUND;
     }
 
     if (p_cache_item->key_len == 0) {
-        //  TODO: ERROR LOG
+        DEBUG_LOG("The length of the key (%.*s) is invalid.",
+                  key->len, key->data);
         return PUPA_ERROR;
     }
 

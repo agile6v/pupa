@@ -30,19 +30,13 @@ int pupa_init(char *path, int key_count, int op_type)
         return ret;
     }
 
-    DEBUG_LOG("xx1");
-
     pupa_ctx.cache_hdr = (pupa_cache_hdr_t *) pupa_ctx.shm.data;
 
-    DEBUG_LOG("xx2");
-
     if (!pupa_ctx.shm.exists) {
-        memcpy((void *) pupa_ctx.cache_hdr,
-               (void *) &cache_hdr,
+        memcpy((char *) pupa_ctx.cache_hdr,
+               (char *) &cache_hdr,
                sizeof(pupa_cache_hdr_t));
     }
-
-    DEBUG_LOG("xx3");
 
     pupa_ctx.init = 1;
 
