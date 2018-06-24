@@ -155,11 +155,17 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
         cache_item_wrapper.key_section_offset =
             PUPA_CACHE_GET_KEY_MIRROR_OFFSET(ctx->cache_hdr->item_section);
 
+#if (_PUPA_DARWIN)
         qsort_r(ctx->cache_hdr->cache_items_mirror,
                 ctx->cache_hdr->item_section.used,
                 sizeof(pupa_cache_item_t),
                 &cache_item_wrapper, _pupa_cache_item_compare);
-
+#else
+        qsort_r(ctx->cache_hdr->cache_items_mirror,
+                ctx->cache_hdr->item_section.used,
+                sizeof(pupa_cache_item_t),
+                _pupa_cache_item_compare, &cache_item_wrapper);
+#endif
         p_item_section->id = (p_item_section->id == PUPA_CACHE_SECTION_ONE) ? \
                              PUPA_CACHE_SECTION_TWO : p_item_section->id;
         p_item_section->used++;

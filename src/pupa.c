@@ -4,6 +4,8 @@
 
 #include "pupa.h"
 
+#define PUPA_DEFAULT_KEY_COUNT  1000
+
 static pupa_ctx_t   pupa_ctx;
 
 
@@ -14,7 +16,7 @@ int pupa_init(char *path, int key_count, int op_type)
     pupa_cache_hdr_t  cache_hdr;
 
     if (pupa_ctx.init) {
-        //  TODO:   WARNING LOG
+        DEBUG_LOG("This library has been initialized.");
         return PUPA_OK;
     }
 
@@ -28,13 +30,19 @@ int pupa_init(char *path, int key_count, int op_type)
         return ret;
     }
 
+    DEBUG_LOG("xx1");
+
     pupa_ctx.cache_hdr = (pupa_cache_hdr_t *) pupa_ctx.shm.data;
+
+    DEBUG_LOG("xx2");
 
     if (!pupa_ctx.shm.exists) {
         memcpy((void *) pupa_ctx.cache_hdr,
                (void *) &cache_hdr,
                sizeof(pupa_cache_hdr_t));
     }
+
+    DEBUG_LOG("xx3");
 
     pupa_ctx.init = 1;
 

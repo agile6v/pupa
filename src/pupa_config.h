@@ -10,6 +10,7 @@ typedef struct pupa_str_s   pupa_str_t;
 typedef struct pupa_shm_s   pupa_shm_t;
 typedef struct pupa_ctx_s   pupa_ctx_t;
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -31,6 +32,18 @@ typedef struct pupa_ctx_s   pupa_ctx_t;
 
 #define pupa_str_set(str, value)                                     \
     (str)->len = sizeof(value) - 1; (str)->data = (char *) value
+
+
+#ifdef PUPA_DEBUG
+#define DEBUG_LOG(...)                                                         \
+    do {                                                                       \
+        fprintf(stderr, "%s@%d: ", __FILE__, __LINE__);                        \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+    } while (0)
+#else
+#define DEBUG_LOG(...)
+#endif
 
 struct pupa_str_s {
     int    len;

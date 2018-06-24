@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <errno.h>
 
 int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
 {
@@ -20,18 +21,18 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
     if (op_type == PUPA_OP_TYPE_READ) {
         fd = open(shm->path, O_RDONLY);
         if (fd == PUPA_ERROR) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to open %s, errno: %d", shm->path, errno);
             return PUPA_ERROR;
         }
 
         if (fstat(fd, &st) == PUPA_ERROR) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to fstat %s, errno: %d", shm->path, errno);
             close(fd);
             return PUPA_ERROR;
         }
 
         if (st.st_size == 0) {
-            //  TODO:   error log
+            DEBUG_LOG("File %s is empty.", shm->path);
             close(fd);
             return PUPA_ERROR;
         }
@@ -41,37 +42,49 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
 
         shm->data = mmap(NULL, shm->size, PROT_READ, MAP_PRIVATE, fd, 0);
         if (shm->data == MAP_FAILED) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to mmap(%s), size: %ld, errno: %d",
+                      shm->path, shm->size, errno);
             close(fd);
-            return -1;
+            return PUPA_ERROR;
         }
     } else {
         flag = O_CREAT | O_RDWR;
 
-        fd = open(shm->path, flag);
+        DEBUG_LOG("1");
+
+        fd = open(shm->path, flag, 0666);
         if (fd == PUPA_ERROR) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to open %s, errno: %d", shm->path, errno);
             return PUPA_ERROR;
         }
 
+        DEBUG_LOG("2");
+
         if (fstat(fd, &st) == PUPA_ERROR) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to fstat %s, errno: %d", shm->path, errno);
             close(fd);
             return PUPA_ERROR;
         }
+
+        DEBUG_LOG("3");
 
         shm->exists = (st.st_size == 0) ? 0 : 1;
         shm->size = (st.st_size == 0) ? shm->size : st.st_size;
 
         shm->data = mmap(NULL, shm->size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
         if (shm->data == MAP_FAILED) {
-            //  TODO:   error log
+            DEBUG_LOG("Failed to mmap(%s), size: %ld, errno: %d",
+                      shm->path, shm->size, errno);
             close(fd);
-            return -1;
+            return PUPA_ERROR;
         }
+
+        DEBUG_LOG("4: %p", shm->data);
     }
 
     close(fd);
+
+    DEBUG_LOG("5");
 
     return PUPA_OK;
 }
