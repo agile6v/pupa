@@ -83,16 +83,11 @@ typedef struct {
 } pupa_cache_item_wrapper_t;
 
 
-typedef struct {
-
-} pupa_cache_stats_t;
-
-
 int32_t pupa_cache_init(pupa_cache_hdr_t *cache_hdr, int key_count);
 int pupa_cache_fini(pupa_ctx_t *ctx);
 
 int pupa_cache_del(pupa_ctx_t *ctx, pupa_str_t *key);
-int pupa_cache_stats(pupa_ctx_t *ctx, pupa_cache_stats_t *stat);
+int pupa_cache_stats(pupa_ctx_t *ctx, pupa_str_t *stat);
 int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
 int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
 

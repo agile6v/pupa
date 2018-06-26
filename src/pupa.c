@@ -111,10 +111,9 @@ int pupa_del(pupa_str_t *key)
 
 int pupa_stats(pupa_str_t *stat_json)
 {
-    int                 ret;
-    pupa_cache_stats_t  stat;
+    int            ret;
 
-    ret = pupa_cache_stats(&pupa_ctx, &stat);
+    ret = pupa_cache_stats(&pupa_ctx, stat_json);
     if (ret != PUPA_OK) {
         return ret;
     }

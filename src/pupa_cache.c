@@ -103,14 +103,13 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 {
     int                          ret;
     pupa_cache_item_t             *p_cache_item;
-    pupa_cache_section_t          *p_item_section, *p_key_section;
+    pupa_cache_section_t          *p_item_section;
     pupa_cache_item_wrapper_t      cache_item_wrapper;
 
     //  generate the mirror of the cache items
     pupa_cache_item_make_mirror(ctx);
 
     p_item_section = &ctx->cache_hdr->item_section;
-    p_key_section  = &ctx->cache_hdr->key_section;
 
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
@@ -390,8 +389,53 @@ static void pupa_cache_item_make_mirror(pupa_ctx_t *ctx)
 }
 
 
-int pupa_cache_stats(pupa_ctx_t *ctx, pupa_cache_stats_t *stat)
+int pupa_cache_stats(pupa_ctx_t *ctx, pupa_str_t *stat)
 {
+    static char buf[1024];
+    char *p = buf;
+
+    stat->len = sprintf(p, "{\n"
+        "\t\"item\" : {\n"
+            "\t\t\"size\": %ld,\n"
+            "\t\t\"used\": %ld,\n"
+            "\t\t\"id\": %d,\n"
+            "\t\t\"section-1\": %d,\n"
+            "\t\t\"section-2\": %d,\n"
+        "\t},\n"
+        "\t\"key\" : {\n"
+            "\t\t\"size\": %ld,\n"
+            "\t\t\"used\": %ld,\n"
+            "\t\t\"id\": %d,\n"
+            "\t\t\"section-1\": %d,\n"
+            "\t\t\"section-2\": %d,\n"
+        "\t},\n"
+        "\t\"value\" : {\n"
+            "\t\t\"size\": %ld,\n"
+            "\t\t\"used\": %ld,\n"
+            "\t\t\"id\": %d,\n"
+            "\t\t\"section-1\": %d,\n"
+            "\t\t\"section-2\": %d,\n"
+        "\t}\n"
+        "}\n",
+        ctx->cache_hdr->item_section.size,
+        ctx->cache_hdr->item_section.used,
+        ctx->cache_hdr->item_section.id,
+        ctx->cache_hdr->item_section.sec1_offset,
+        ctx->cache_hdr->item_section.sec2_offset,
+        ctx->cache_hdr->key_section.size,
+        ctx->cache_hdr->key_section.used,
+        ctx->cache_hdr->key_section.id,
+        ctx->cache_hdr->key_section.sec1_offset,
+        ctx->cache_hdr->key_section.sec2_offset,
+        ctx->cache_hdr->value_section.size,
+        ctx->cache_hdr->value_section.used,
+        ctx->cache_hdr->value_section.id,
+        ctx->cache_hdr->value_section.sec1_offset,
+        ctx->cache_hdr->value_section.sec2_offset
+    );
+
+    stat->data = buf;
+
     return PUPA_OK;
 }
 
