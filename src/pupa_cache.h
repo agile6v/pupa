@@ -9,6 +9,7 @@
 
 #define PUPA_KEY_AVERAGE_LEN        64
 #define PUPA_VALUE_AVERAGE_LEN      256
+#define PUPA_KEY_MAX_LEN            1024
 
 #define PUPA_CACHE_SECTION_ONE      1
 #define PUPA_CACHE_SECTION_TWO      2
@@ -78,8 +79,9 @@ struct pupa_ctx_s {
 
 typedef struct {
     pupa_cache_item_t  cache_item;
-    pupa_ctx_t      *ctx;
-    int32_t          key_section_offset;
+    pupa_ctx_t        *ctx;
+    int32_t            key_section_offset;
+    int64_t            key_offset;
 } pupa_cache_item_wrapper_t;
 
 

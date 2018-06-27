@@ -54,6 +54,8 @@ static void pt_stat(pupa_str_t *filename)
 static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
 {
     int         ret;
+    printf("testing1\n");
+
 
     ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_WRITE);
     if (ret != PUPA_OK) {
@@ -84,8 +86,6 @@ static int pt_get(pupa_str_t *key, pupa_str_t *filename)
         printf("Failed to initialize pupa.\n");
         return ret;
     }
-
-    printf("key: %.*s\n", key->len, key->data);
 
     ret = pupa_get(key, &value);
     if (ret != PUPA_OK) {

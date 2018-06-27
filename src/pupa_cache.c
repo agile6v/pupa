@@ -59,10 +59,18 @@ int32_t pupa_cache_init(pupa_cache_hdr_t *cache_hdr, int key_count)
 
 int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 {
+    char                          key_buf[PUPA_KEY_MAX_LEN + 1];
     char                         *p_value_addr;
     pupa_cache_item_t            *p_cache_item;
     pupa_cache_section_t         *p_item_section;
     pupa_cache_item_wrapper_t     cache_item_wrapper;
+
+    if (key->len > PUPA_KEY_MAX_LEN) {
+        DEBUG_LOG("The length of the key exceeds the maximun length");
+        return PUPA_ERROR;
+    }
+
+    strcpy(key_buf, key->data);
 
     p_value_addr = PUPA_CACHE_GET_ADDR(ctx->cache_hdr,
                                        ctx->cache_hdr->value_section);
@@ -70,7 +78,7 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
         PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
-    cache_item_wrapper.cache_item.key_offset = (int32_t) (key->data -
+    cache_item_wrapper.key_offset = (int64_t) (key_buf -
         PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section));
     cache_item_wrapper.cache_item.key_len = key->len + 1;
 
@@ -101,10 +109,18 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 
 int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 {
-    int                          ret;
+    int                           ret;
+    char                          key_buf[PUPA_KEY_MAX_LEN + 1];
     pupa_cache_item_t             *p_cache_item;
     pupa_cache_section_t          *p_item_section;
     pupa_cache_item_wrapper_t      cache_item_wrapper;
+
+    if (key->len > PUPA_KEY_MAX_LEN) {
+        DEBUG_LOG("The length of the key exceeds the maximun length");
+        return PUPA_ERROR;
+    }
+
+    strcpy(key_buf, key->data);
 
     //  generate the mirror of the cache items
     pupa_cache_item_make_mirror(ctx);
@@ -114,7 +130,7 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
         PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
-    cache_item_wrapper.cache_item.key_offset = (int32_t) (key->data -
+    cache_item_wrapper.key_offset = (int64_t) (key_buf -
         PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section));
     cache_item_wrapper.cache_item.key_len = key->len + 1;
 
@@ -276,9 +292,9 @@ static int pupa_cache_item_replace(pupa_ctx_t *ctx,
 static int _pupa_cache_item_compare(void *p1, const void *p2,
                                       const void *arg)
 {
-    int                      ret;
-    int32_t                  key_section_offset;
-    char                    *p_cache_hdr;
+    int                        ret;
+    int32_t                    key_section_offset;
+    char                      *p_cache_hdr;
     pupa_cache_item_wrapper_t *p_cache_item_wrapper;
 
     ret = ((pupa_cache_item_t *) p1)->key_len - ((pupa_cache_item_t *)p2)->key_len;
@@ -292,7 +308,7 @@ static int _pupa_cache_item_compare(void *p1, const void *p2,
     key_section_offset = p_cache_item_wrapper->key_section_offset;
 
     return memcmp(p_cache_hdr + key_section_offset +
-                  ((pupa_cache_item_t *) p1)->key_offset,
+                  p_cache_item_wrapper->key_offset,
                   p_cache_hdr + key_section_offset +
                   ((pupa_cache_item_t *) p2)->key_offset,
                   ((pupa_cache_item_t *) p1)->key_len);
