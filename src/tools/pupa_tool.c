@@ -28,10 +28,16 @@ static void usage(const char *prog)
 }
 
 
-static void pt_stat()
+static void pt_stat(pupa_str_t *filename)
 {
     int         ret;
     pupa_str_t  stat;
+
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_READ);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return;
+    }
 
     ret = pupa_stats(&stat);
     if (ret != PUPA_OK) {
@@ -39,18 +45,58 @@ static void pt_stat()
         return;
     }
 
-    printf("\tstat: \n\n%.*s", stat.len, stat.data);
+    printf("\npupa statistics: \n\n%.*s", stat.len, stat.data);
+
+    pupa_fini();
 }
 
 
 static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
 {
+    int         ret;
+
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_WRITE);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return ret;
+    }
+
+    ret = pupa_set(key, value);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
+    printf("set successfully.\n");
+
+    pupa_fini();
+
     return 0;
 }
 
 
 static int pt_get(pupa_str_t *key, pupa_str_t *filename)
 {
+    int         ret;
+    pupa_str_t  value;
+
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_READ);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return ret;
+    }
+
+    printf("key: %.*s\n", key->len, key->data);
+
+    ret = pupa_get(key, &value);
+    if (ret != PUPA_OK) {
+        printf("Failed to get %.*s.\n", key->len, key->data);
+        return ret;
+    }
+
+    printf("\nGot %.*s : %.*s\n", key->len, key->data, value.len, value.data);
+
+    pupa_fini();
+
     return 0;
 }
 
@@ -69,6 +115,11 @@ int main(int argc, char *argv[])
     }
 
     if (!strcmp(argv[1], "-f")) {
+        if (argc < 4) {
+            usage(argv[0]);
+            return 0;
+        }
+
         filename.data = argv[2];
         filename.len = strlen(argv[2]);
         command = argv[3];
@@ -89,7 +140,7 @@ int main(int argc, char *argv[])
         if (ret != PUPA_OK) {
             return ret;
         }
-    } else if (!strcmp(command, "get") && argc >= 3) {
+    } else if (!strcmp(command, "get")) {
         key.data = argv[key_index];
         key.len = strlen(key.data);
 
@@ -98,7 +149,7 @@ int main(int argc, char *argv[])
             return ret;
         }
     } else if (!strcmp(command, "stat")) {
-        pt_stat();
+        pt_stat(&filename);
     } else {
         usage(argv[0]);
         return 0;
