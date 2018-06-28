@@ -9,7 +9,6 @@
 
 #define PUPA_KEY_AVERAGE_LEN        64
 #define PUPA_VALUE_AVERAGE_LEN      256
-#define PUPA_KEY_MAX_LEN            1024
 
 #define PUPA_CACHE_SECTION_ONE      1
 #define PUPA_CACHE_SECTION_TWO      2

@@ -11,8 +11,8 @@ static pupa_ctx_t   pupa_ctx;
 
 int pupa_init(char *path, int key_count, int op_type)
 {
-    int             ret;
-    int32_t         len;
+    int               ret;
+    int32_t           len;
     pupa_cache_hdr_t  cache_hdr;
 
     if (pupa_ctx.init) {
@@ -117,8 +117,6 @@ int pupa_stats(pupa_str_t *stat_json)
     if (ret != PUPA_OK) {
         return ret;
     }
-
-    //  TODO:   serialize struct stats to json string
 
     return PUPA_OK;
 }

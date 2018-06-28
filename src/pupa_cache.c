@@ -59,18 +59,10 @@ int32_t pupa_cache_init(pupa_cache_hdr_t *cache_hdr, int key_count)
 
 int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 {
-    char                          key_buf[PUPA_KEY_MAX_LEN + 1];
     char                         *p_value_addr;
     pupa_cache_item_t            *p_cache_item;
     pupa_cache_section_t         *p_item_section;
     pupa_cache_item_wrapper_t     cache_item_wrapper;
-
-    if (key->len > PUPA_KEY_MAX_LEN) {
-        DEBUG_LOG("The length of the key exceeds the maximun length");
-        return PUPA_ERROR;
-    }
-
-    strcpy(key_buf, key->data);
 
     p_value_addr = PUPA_CACHE_GET_ADDR(ctx->cache_hdr,
                                        ctx->cache_hdr->value_section);
@@ -78,7 +70,7 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
         PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
-    cache_item_wrapper.key_offset = (int64_t) (key_buf -
+    cache_item_wrapper.key_offset = (int64_t) (key->data -
         PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section));
     cache_item_wrapper.cache_item.key_len = key->len + 1;
 
@@ -110,17 +102,9 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 {
     int                           ret;
-    char                          key_buf[PUPA_KEY_MAX_LEN + 1];
     pupa_cache_item_t             *p_cache_item;
     pupa_cache_section_t          *p_item_section;
     pupa_cache_item_wrapper_t      cache_item_wrapper;
-
-    if (key->len > PUPA_KEY_MAX_LEN) {
-        DEBUG_LOG("The length of the key exceeds the maximun length");
-        return PUPA_ERROR;
-    }
-
-    strcpy(key_buf, key->data);
 
     //  generate the mirror of the cache items
     pupa_cache_item_make_mirror(ctx);
@@ -130,7 +114,7 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     cache_item_wrapper.ctx = ctx;
     cache_item_wrapper.key_section_offset =
         PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
-    cache_item_wrapper.key_offset = (int64_t) (key_buf -
+    cache_item_wrapper.key_offset = (int64_t) (key->data -
         PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section));
     cache_item_wrapper.cache_item.key_len = key->len + 1;
 
@@ -187,6 +171,61 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 
 int pupa_cache_del(pupa_ctx_t *ctx, pupa_str_t *key)
 {
+    int                            ret;
+    pupa_cache_item_t             *p_cache_item;
+    pupa_cache_section_t          *p_item_section;
+    pupa_cache_item_wrapper_t      cache_item_wrapper;
+
+    //  generate the mirror of the cache items
+    pupa_cache_item_make_mirror(ctx);
+
+    p_item_section = &ctx->cache_hdr->item_section;
+
+    cache_item_wrapper.ctx = ctx;
+    cache_item_wrapper.key_section_offset =
+            PUPA_CACHE_GET_KEY_OFFSET(ctx->cache_hdr->key_section);
+    cache_item_wrapper.key_offset = (int64_t) (key->data -
+        PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section));
+    cache_item_wrapper.cache_item.key_len = key->len + 1;
+
+    p_cache_item = bsearch(&cache_item_wrapper.cache_item,
+                           ctx->cache_items_mirror,
+                           p_item_section->used,
+                           sizeof(pupa_cache_item_t),
+                           pupa_cache_item_compare);
+    if (p_cache_item == NULL) {
+        DEBUG_LOG("Not found key: %.*s", key->len, key->data);
+        return PUPA_NOT_FOUND;
+    }
+
+    ret = pupa_shm_sync(ctx);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
+    p_cache_item->key_len = ctx->cache_hdr->key_section.size;
+
+    cache_item_wrapper.key_section_offset =
+            PUPA_CACHE_GET_KEY_MIRROR_OFFSET(ctx->cache_hdr->item_section);
+
+#if (_PUPA_DARWIN)
+    qsort_r(ctx->cache_items_mirror,
+            ctx->cache_hdr->item_section.used,
+            sizeof(pupa_cache_item_t),
+            &cache_item_wrapper, _pupa_cache_item_compare);
+#else
+    qsort_r(ctx->cache_items_mirror,
+            ctx->cache_hdr->item_section.used,
+            sizeof(pupa_cache_item_t),
+            _pupa_cache_item_compare, &cache_item_wrapper);
+#endif
+
+    p_item_section->id = (p_item_section->id == PUPA_CACHE_SECTION_ONE) ? \
+                             PUPA_CACHE_SECTION_TWO : p_item_section->id;
+
+    p_item_section->used--;
+
+
     return PUPA_OK;
 }
 
