@@ -20,6 +20,8 @@ static void usage(const char *prog)
         "            For example: set key value\n"
         "    get     Get the value of the key.\n"
         "            For example: get key\n"
+        "    del     Delete the specified key.\n"
+        "            For example: del key\n"
         "    stat    Statistics and Information about the pupa cache.\n\n"
         "Options:\n"
         "    -f      Specify the cache file of the PUPA. If not specified, \n"
@@ -28,7 +30,7 @@ static void usage(const char *prog)
 }
 
 
-static void pt_stat(pupa_str_t *filename)
+static int pt_stat(pupa_str_t *filename)
 {
     int         ret;
     pupa_str_t  stat;
@@ -36,18 +38,20 @@ static void pt_stat(pupa_str_t *filename)
     ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_READ);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
-        return;
+        return ret;
     }
 
     ret = pupa_stats(&stat);
     if (ret != PUPA_OK) {
         printf("Failed to execute pupa_stats.\n");
-        return;
+        return ret;
     }
 
     printf("\npupa statistics: \n\n%.*s", stat.len, stat.data);
 
     pupa_fini();
+
+    return 0;
 }
 
 
@@ -76,6 +80,29 @@ static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
 }
 
 
+static int pt_del(pupa_str_t *key, pupa_str_t *filename)
+{
+    int         ret;
+
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_WRITE);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return ret;
+    }
+
+    ret = pupa_del(key);
+    if (ret != PUPA_OK) {
+        printf("Failed to delete %.*s.\n", key->len, key->data);
+        return ret;
+    }
+
+    printf("Delete %.*s successfully.\n", key->len, key->data);
+
+    pupa_fini();
+
+    return 0;
+}
+
 static int pt_get(pupa_str_t *key, pupa_str_t *filename)
 {
     int         ret;
@@ -101,58 +128,85 @@ static int pt_get(pupa_str_t *key, pupa_str_t *filename)
 }
 
 
-int main(int argc, char *argv[])
+static int parse_cmd(int argc, char *argv[], char **cmd, pupa_str_t *key,
+                     pupa_str_t *value, pupa_str_t *filename)
 {
-    char        *command;
-    int          ret;
-    int          key_index;
-    pupa_str_t   key, value;
-    pupa_str_t   filename = pupa_string(DEFAULT_CACHE_FILE);
+    int     key_idx;
+    char   *command;
 
     if (argc < 2) {
-        usage(argv[0]);
-        return 0;
+        return -1;
     }
 
     if (!strcmp(argv[1], "-f")) {
         if (argc < 4) {
-            usage(argv[0]);
-            return 0;
+            return -1;
         }
 
-        filename.data = argv[2];
-        filename.len = strlen(argv[2]);
         command = argv[3];
-        key_index = 4;
+        key_idx = 4;
+
+        filename->data = argv[2];
+        filename->len = strlen(argv[2]);
     } else {
         command = argv[1];
-        key_index = 2;
+        key_idx = 2;
     }
 
     if (!strcmp(command, "set")) {
-        key.data = argv[key_index++];
-        key.len = strlen(key.data);
+        if (argc - key_idx != 2) {
+            return -1;
+        }
 
-        value.data = argv[key_index];
-        value.len = strlen(value.data);
+        key->data = argv[key_idx++];
+        key->len = strlen(key->data);
 
+        value->data = argv[key_idx];
+        value->len = strlen(value->data);
+
+    } else if (!strcmp(command, "get") || !strcmp(command, "del") ) {
+        if (argc - key_idx != 1) {
+            return -1;
+        }
+
+        key->data = argv[key_idx];
+        key->len = strlen(key->data);
+    }
+
+    *cmd = command;
+
+    return 0;
+}
+
+
+int main(int argc, char *argv[])
+{
+    int          ret;
+    pupa_str_t   key, value;
+    char        *cmd = NULL;
+    pupa_str_t   filename = pupa_string(DEFAULT_CACHE_FILE);
+
+    ret = parse_cmd(argc, argv, &cmd, &key, &value, &filename);
+    if (ret != 0) {
+        usage(argv[0]);
+        return 0;
+    }
+
+    if (!strcmp(cmd, "set")) {
         ret = pt_set(&key, &value, &filename);
-        if (ret != PUPA_OK) {
-            return ret;
-        }
-    } else if (!strcmp(command, "get")) {
-        key.data = argv[key_index];
-        key.len = strlen(key.data);
-
+    } else if (!strcmp(cmd, "get")) {
         ret = pt_get(&key, &filename);
-        if (ret != PUPA_OK) {
-            return ret;
-        }
-    } else if (!strcmp(command, "stat")) {
-        pt_stat(&filename);
+    } else if (!strcmp(cmd, "del")) {
+        ret = pt_del(&key, &filename);
+    } else if (!strcmp(cmd, "stat")) {
+        ret = pt_stat(&filename);
     } else {
         usage(argv[0]);
         return 0;
+    }
+
+    if (ret != PUPA_OK) {
+        return ret;
     }
 
     return 0;
