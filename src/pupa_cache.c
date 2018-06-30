@@ -160,10 +160,12 @@ int pupa_cache_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
                 sizeof(pupa_cache_item_t),
                 _pupa_cache_item_compare, &cache_item_wrapper);
 #endif
-        p_item_section->id = (p_item_section->id == PUPA_CACHE_SECTION_ONE) ? \
-                             PUPA_CACHE_SECTION_TWO : p_item_section->id;
+
         p_item_section->used++;
     }
+
+    p_item_section->id = (p_item_section->id == PUPA_CACHE_SECTION_ONE) ? \
+                             PUPA_CACHE_SECTION_TWO : PUPA_CACHE_SECTION_ONE;
 
     return PUPA_OK;
 }
@@ -319,7 +321,8 @@ static int pupa_cache_item_replace(pupa_ctx_t *ctx,
     cache_item->value_offset = cache_hdr->value_section.used;
     cache_item->value_len = value->len + 1;
 
-    p = memcpy(p, value->data, value->len);
+    memcpy(p, value->data, value->len);
+    p += value->len;
     *p = '\0';
 
     cache_hdr->value_section.used += cache_item->value_len;
@@ -444,6 +447,42 @@ static void pupa_cache_item_make_mirror(pupa_ctx_t *ctx)
 }
 
 
+int pupa_cache_dump(pupa_ctx_t *ctx)
+{
+    int                 i;
+    char               *p;
+    pupa_cache_item_t  *p_item;
+
+
+    DEBUG_LOG("------- PUPA DUMP -------");
+
+    p_item = ctx->cache_items;
+    for (i = 0; i < ctx->cache_hdr->item_section.used; i++) {
+        p = PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section);
+
+        DEBUG_LOG("index: %d",     i);
+        DEBUG_LOG("key: %.*s",     p_item[i].key_len, p + p_item[i].key_offset);
+
+        p = PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->value_section);
+
+        DEBUG_LOG("value: %.*s",   p_item[i].value_len, p + p_item[i].value_offset);
+    }
+
+    p_item = ctx->cache_items_mirror;
+    for (i = 0; i < ctx->cache_hdr->item_section.used; i++) {
+        p = PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->key_section);
+
+        DEBUG_LOG("index: %d",     i);
+        DEBUG_LOG("key: %.*s",     p_item[i].key_len, p + p_item[i].key_offset);
+
+        p = PUPA_CACHE_GET_ADDR(ctx->cache_hdr, ctx->cache_hdr->value_section);
+
+        DEBUG_LOG("value: %.*s",   p_item[i].value_len, p + p_item[i].value_offset);
+    }
+
+    return PUPA_OK;
+}
+
 int pupa_cache_stats(pupa_ctx_t *ctx, pupa_str_t *stat)
 {
     static char buf[1024];
@@ -490,6 +529,8 @@ int pupa_cache_stats(pupa_ctx_t *ctx, pupa_str_t *stat)
     );
 
     stat->data = buf;
+
+    pupa_cache_dump(ctx);
 
     return PUPA_OK;
 }
