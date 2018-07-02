@@ -12,8 +12,8 @@ import (
 )
 
 
-func PUPAInit(filename string, opType int) error {
-    ret := C.pupa_init(C.CString(filename), 2, C.int(opType))
+func PUPAInit(filename string, keyCount int, opType int) error {
+    ret := C.pupa_init(C.CString(filename), C.int(keyCount), C.int(opType))
     if ret != 0 {
         return errors.New("Failed to initialize pupa.")
     }

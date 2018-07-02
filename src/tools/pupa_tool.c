@@ -35,7 +35,7 @@ static int pt_stat(pupa_str_t *filename)
     int         ret;
     pupa_str_t  stat;
 
-    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_READ);
+    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_R);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;
@@ -61,7 +61,7 @@ static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
     printf("testing1\n");
 
 
-    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_WRITE);
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_RW);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;
@@ -84,7 +84,7 @@ static int pt_del(pupa_str_t *key, pupa_str_t *filename)
 {
     int         ret;
 
-    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_WRITE);
+    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_RW);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;
@@ -108,7 +108,7 @@ static int pt_get(pupa_str_t *key, pupa_str_t *filename)
     int         ret;
     pupa_str_t  value;
 
-    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_READ);
+    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_R);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;

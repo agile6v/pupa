@@ -18,7 +18,7 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
 
     shm = &ctx->shm;
 
-    if (op_type == PUPA_OP_TYPE_READ) {
+    if (op_type == PUPA_OP_TYPE_R) {
         fd = open(shm->path, O_RDONLY);
         if (fd == PUPA_ERROR) {
             DEBUG_LOG("Failed to open %s, errno: %d", shm->path, errno);

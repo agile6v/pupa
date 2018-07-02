@@ -76,6 +76,11 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 
     p_item_section = &ctx->cache_hdr->item_section;
 
+    DEBUG_LOG("debug: %d, %d, %lld",
+              cache_item_wrapper.key_section_offset,
+              cache_item_wrapper.cache_item.key_len,
+              cache_item_wrapper.key_offset);
+
     p_cache_item = bsearch(&cache_item_wrapper.cache_item,
                            ctx->cache_items,
                            p_item_section->used,
