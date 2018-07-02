@@ -23,7 +23,6 @@ func PUPAInit(filename string, opType int) error {
 
 
 func PUPADel(key string) error {
-
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -38,7 +37,6 @@ func PUPADel(key string) error {
 
 
 func PUPAGet(key string) (string, error) {
-
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -55,7 +53,6 @@ func PUPAGet(key string) (string, error) {
 
 
 func PUPASet(key string, value string) error {
-
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -74,7 +71,6 @@ func PUPASet(key string, value string) error {
 
 
 func PUPAStats() (string, error) {
-
     stat_str := &C.struct_pupa_str_s{}
 
     ret := C.pupa_stats(stat_str)
