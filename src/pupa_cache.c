@@ -4,6 +4,13 @@
 
 #include "pupa_cache.h"
 
+#if (_PUPA_DARWIN)
+static int _pupa_cache_item_compare(void *p1, const void *p2,
+                                    const void *arg);
+#else
+static int _pupa_cache_item_compare(const void *p1, const void *p2,
+                                    void *arg);
+#endif
 static int pupa_cache_item_compare(const void *p1, const void *p2);
 static void pupa_cache_item_make_mirror(pupa_ctx_t *ctx);
 static int pupa_cache_item_add(pupa_ctx_t *ctx,
@@ -12,8 +19,6 @@ static int pupa_cache_item_add(pupa_ctx_t *ctx,
 static int pupa_cache_item_replace(pupa_ctx_t *ctx,
                                    pupa_cache_item_t *cache_item,
                                    pupa_str_t *value);
-static int _pupa_cache_item_compare(void *p1, const void *p2,
-                                    const void *arg);
 static int pupa_cache_value_compaction(pupa_ctx_t *ctx,
                                        pupa_str_t *value, char **address);
 static int pupa_cache_key_compaction(pupa_ctx_t *ctx,
@@ -75,11 +80,6 @@ int pupa_cache_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     cache_item_wrapper.cache_item.key_len = key->len + 1;
 
     p_item_section = &ctx->cache_hdr->item_section;
-
-    DEBUG_LOG("debug: %d, %d, %lld",
-              cache_item_wrapper.key_section_offset,
-              cache_item_wrapper.cache_item.key_len,
-              cache_item_wrapper.key_offset);
 
     p_cache_item = bsearch(&cache_item_wrapper.cache_item,
                            ctx->cache_items,
@@ -335,9 +335,13 @@ static int pupa_cache_item_replace(pupa_ctx_t *ctx,
     return PUPA_OK;
 }
 
-
+#if (_PUPA_DARWIN)
 static int _pupa_cache_item_compare(void *p1, const void *p2,
-                                      const void *arg)
+                                    const void *arg)
+#else
+static int _pupa_cache_item_compare(const void *p1, const void *p2,
+                                    void *arg)
+#endif
 {
     int                        ret;
     int32_t                    key_section_offset;
