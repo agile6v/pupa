@@ -2,7 +2,7 @@
  * Copyright (C) agile6v
  */
 
-#include "pupa.h"
+#include "pupa_config.h"
 
 #define PUPA_DEFAULT_KEY_COUNT  1000
 

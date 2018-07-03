@@ -1,0 +1,6 @@
+*.so
+*.lo
+*.o
+*.a
+*pupa.cache
+.gitignore

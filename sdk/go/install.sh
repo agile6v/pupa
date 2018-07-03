@@ -21,3 +21,5 @@ $echo " + Go package path: \"${GO_PATH}\""
 
 install -d ${GO_PATH}/src/github.com/agile6v/pupa
 install -p -m644 pupa.go ${GO_PATH}/src/github.com/agile6v/pupa
+
+$echo "Install successfully."

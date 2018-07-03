@@ -11,6 +11,11 @@ import (
     "errors"
 )
 
+const (
+    PUPAOpTypeR  = 1
+    PUPAOpTypeRW = 2
+)
+
 
 func PUPAInit(filename string, keyCount int, opType int) error {
     ret := C.pupa_init(C.CString(filename), C.int(keyCount), C.int(opType))
