@@ -15,6 +15,6 @@ all: $(ALL_PRGS)
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $< $(INC_PATH)
 clean:
-	rm -f $(ALL_PRGS)
+	rm -f $(ALL_PRGS) pupa.cache
 
 .PHONY: clean

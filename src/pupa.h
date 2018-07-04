@@ -19,5 +19,4 @@ int pupa_del(pupa_str_t *key);
 
 int pupa_stats(pupa_str_t *stat_json);
 
-
-#endif //_PUPA_H
+#endif  //_PUPA_H
