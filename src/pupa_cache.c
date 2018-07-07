@@ -323,44 +323,42 @@ static int _pupa_cache_item_compare(const void *p1, const void *p2, void *arg)
 {
     int                        ret;
     int32_t                    key_section_offset;
-    char *                     p_cache_hdr;
+    char                      *p_cache_hdr;
     pupa_cache_item_wrapper_t *p_cache_item_wrapper;
 
-    ret =
-        ((pupa_cache_item_t *)p1)->key_len - ((pupa_cache_item_t *)p2)->key_len;
+    ret = ((pupa_cache_item_t *) p1)->key_len -
+            ((pupa_cache_item_t *) p2)->key_len;
     if (ret != 0) {
         return ret;
     }
 
     p_cache_item_wrapper = (pupa_cache_item_wrapper_t *)arg;
 
-    p_cache_hdr        = (char *)p_cache_item_wrapper->ctx->cache_hdr;
+    p_cache_hdr        = (char *) p_cache_item_wrapper->ctx->cache_hdr;
     key_section_offset = p_cache_item_wrapper->key_section_offset;
 
     return memcmp(p_cache_hdr + key_section_offset +
                       p_cache_item_wrapper->key_offset,
                   p_cache_hdr + key_section_offset +
-                      ((pupa_cache_item_t *)p2)->key_offset,
-                  ((pupa_cache_item_t *)p1)->key_len);
+                      ((pupa_cache_item_t *) p2)->key_offset,
+                  ((pupa_cache_item_t *) p1)->key_len);
 }
 
 static int pupa_cache_item_compare(const void *p1, const void *p2)
 {
     pupa_cache_item_wrapper_t *p_cache_item_wrapper;
 
-    p_cache_item_wrapper =
-        (pupa_cache_item_wrapper_t *)((char *)p1 -
-                                      offsetof(pupa_cache_item_wrapper_t,
-                                               cache_item));
+    p_cache_item_wrapper = (pupa_cache_item_wrapper_t *)
+            ((char *) p1 - offsetof(pupa_cache_item_wrapper_t, cache_item));
 
-    return _pupa_cache_item_compare((void *)p1, p2, p_cache_item_wrapper);
+    return _pupa_cache_item_compare((void *) p1, p2, p_cache_item_wrapper);
 }
 
 static int pupa_cache_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
                                        char **address)
 {
     int                i;
-    char *             p;
+    char              *p;
     size_t             used_size;
     pupa_cache_item_t *p_cache_item;
 

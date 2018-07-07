@@ -45,17 +45,17 @@ typedef struct {
 } pupa_cache_section_t;
 
 typedef struct {
-    int32_t key_offset;
-    int32_t value_offset;
+    size_t   key_offset;
+    size_t   value_offset;
 
     uint32_t key_len;
     uint32_t value_len;
 } pupa_cache_item_t;
 
 typedef struct {
-    pupa_cache_section_t item_section;
-    pupa_cache_section_t key_section;
-    pupa_cache_section_t value_section;
+    pupa_cache_section_t  item_section;
+    pupa_cache_section_t  key_section;
+    pupa_cache_section_t  value_section;
 } pupa_cache_hdr_t;
 
 struct pupa_ctx_s {
@@ -69,7 +69,7 @@ struct pupa_ctx_s {
 typedef struct {
     pupa_cache_item_t cache_item;
     pupa_ctx_t       *ctx;
-    int32_t           key_section_offset;
+    size_t            key_section_offset;
     int64_t           key_offset;
 } pupa_cache_item_wrapper_t;
 
