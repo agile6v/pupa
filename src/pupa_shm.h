@@ -5,12 +5,6 @@
 #ifndef _PUPA_SHM_H
 #define _PUPA_SHM_H
 
-#include <inttypes.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
 struct pupa_shm_s {
     int     fd;
     char   *path;

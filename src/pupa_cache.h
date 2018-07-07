@@ -40,16 +40,16 @@ typedef struct {
     uint8_t id;
     size_t  size;
     size_t  used;
-    int32_t sec1_offset;
-    int32_t sec2_offset;
+    size_t  sec1_offset;
+    size_t  sec2_offset;
 } pupa_cache_section_t;
 
 typedef struct {
     int32_t key_offset;
     int32_t value_offset;
 
-    uint16_t key_len;
-    uint16_t value_len;
+    uint32_t key_len;
+    uint32_t value_len;
 } pupa_cache_item_t;
 
 typedef struct {
@@ -59,16 +59,16 @@ typedef struct {
 } pupa_cache_hdr_t;
 
 struct pupa_ctx_s {
-    int                init;  //  initialization switch
+    uint8_t            init;  //  initialization switch
     pupa_shm_t         shm;
-    pupa_cache_hdr_t * cache_hdr;
+    pupa_cache_hdr_t  *cache_hdr;
     pupa_cache_item_t *cache_items;
     pupa_cache_item_t *cache_items_mirror;
 };
 
 typedef struct {
     pupa_cache_item_t cache_item;
-    pupa_ctx_t *      ctx;
+    pupa_ctx_t       *ctx;
     int32_t           key_section_offset;
     int64_t           key_offset;
 } pupa_cache_item_wrapper_t;
