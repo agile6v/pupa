@@ -58,8 +58,6 @@ static int pt_stat(pupa_str_t *filename)
 static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
 {
     int         ret;
-    printf("testing1\n");
-
 
     ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_RW);
     if (ret != PUPA_OK) {
@@ -69,6 +67,7 @@ static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
 
     ret = pupa_set(key, value);
     if (ret != PUPA_OK) {
+        printf("Failed to execute pupa_set.\n");
         return ret;
     }
 
