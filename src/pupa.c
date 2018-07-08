@@ -36,11 +36,11 @@ int pupa_init(char *path, int key_count, int op_type)
                sizeof(pupa_cache_hdr_t));
     }
 
-    pupa_ctx.cache_items = (pupa_cache_item_t *)PUPA_CACHE_GET_ADDR(
+    pupa_ctx.cache_items = (pupa_cache_item_t *) PUPA_CACHE_GET_ADDR(
         pupa_ctx.cache_hdr, pupa_ctx.cache_hdr->item_section);
 
     pupa_ctx.cache_items_mirror =
-        (pupa_cache_item_t *)PUPA_CACHE_GET_MIRROR_ADDR(
+        (pupa_cache_item_t *) PUPA_CACHE_GET_MIRROR_ADDR(
             pupa_ctx.cache_hdr, pupa_ctx.cache_hdr->item_section);
 
     pupa_ctx.init = 1;

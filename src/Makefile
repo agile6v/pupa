@@ -1,7 +1,7 @@
 .SUFFIXES: .c .o .lo
 
 CC=gcc
-CFLAGS=-Wall -g -fPIC -D_GNU_SOURCE -DPUPA_DEBUG
+CFLAGS=-Wall -g -fPIC -D_GNU_SOURCE
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)

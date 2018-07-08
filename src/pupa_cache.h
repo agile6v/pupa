@@ -13,13 +13,18 @@
 #define PUPA_CACHE_SECTION_ONE      1
 #define PUPA_CACHE_SECTION_TWO      2
 
-#define PUPA_CACHE_GET_KEY_OFFSET(key_section)                                 \
-    ((key_section.id == PUPA_CACHE_SECTION_ONE) ? key_section.sec1_offset      \
-                                                : key_section.sec2_offset)
 
-#define PUPA_CACHE_GET_KEY_MIRROR_OFFSET(key_section)                          \
-    ((key_section.id == PUPA_CACHE_SECTION_ONE) ? key_section.sec2_offset      \
-                                                : key_section.sec1_offset)
+#define PUPA_CACHE_GET_SEC_MIRROR_ID(section)                                  \
+    ((section.id == PUPA_CACHE_SECTION_ONE) ? PUPA_CACHE_SECTION_TWO           \
+                                            : PUPA_CACHE_SECTION_ONE)
+
+#define PUPA_CACHE_GET_OFFSET(section)                                         \
+    ((section.id == PUPA_CACHE_SECTION_ONE) ? section.sec1_offset              \
+                                            : section.sec2_offset)
+
+#define PUPA_CACHE_GET_MIRROR_OFFSET(section)                                  \
+    ((section.id == PUPA_CACHE_SECTION_ONE) ? section.sec2_offset              \
+                                            : section.sec1_offset)
 
 #define PUPA_CACHE_GET_ADDR(cache_hdr, section)                                \
     ((section.id == PUPA_CACHE_SECTION_ONE)                                    \
@@ -69,7 +74,6 @@ struct pupa_ctx_s {
 typedef struct {
     pupa_cache_item_t cache_item;
     pupa_ctx_t       *ctx;
-    size_t            key_section_offset;
     int64_t           key_offset;
 } pupa_cache_item_wrapper_t;
 
