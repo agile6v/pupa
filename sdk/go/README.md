@@ -2,7 +2,7 @@
 
 >PUPA provides the following APIs, you can use them in your program. Since all operations read local shared memory and read action is lock-free operation, so don't worry about performance.
 
-NOTICE: All write actions need to be locked in your program, which means you need to call them serially.
+>NOTICE: All write actions need to be locked in your program, which means you need to call them serially.
 
 
 
