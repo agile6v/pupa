@@ -6,11 +6,11 @@ NOTICE: All write actions need to be locked in your program, which means you nee
 
 
 
-* Initialize the pupa cache
+* Initialize the pupa cache.
 
     * filename - A normal file which stores memory data.
-    * keyCount - The maximum number of keys that can be stored. It will be ignored if opType is specified as `PUPAOpTypeR`.
-    * opType - Operation Type. One of `PUPAOpTypeR` and `PUPAOpTypeRW`.
+    * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `PUPAOpTypeR`.
+    * opType - Operation type, one of `PUPAOpTypeR` and `PUPAOpTypeRW`.
 
 
     ```golang
