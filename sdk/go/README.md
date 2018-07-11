@@ -61,7 +61,7 @@ func main() {
     var err error
     var key, value, stats string
 
-    err = pupa.PUPAInit("./pupa.cache", 2, pupa.PUPAOpTypeRW)
+    err = pupa.PUPAInit("./pupa.store", 2, pupa.PUPAOpTypeRW)
     if err != nil {
         fmt.Println("error: ", err)
         return

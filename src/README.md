@@ -6,8 +6,29 @@
 ### Memory Layout
 ![mem_layout][mem_layout]
 
+The memory layout of key-value store consists of 4 parts: Header、Item、Key and Value.
+
+`Header` is the management information area of key-value.
+
+`Item` is the index area of key-value and contains a fixed length array of N item structure.
+
+`Key` is
+
+`Value`
+
 ### SDK
 
+* [Golang](https://github.com/agile6v/pupa/tree/master/sdk/go)
+
+* [C/C++]()
+
+* [Lua]()
+
+* [PHP]()
+
+* [Python]()
+
+* [Java]()
 
 ### Tool
 
@@ -27,7 +48,7 @@ Commands:
 
 Options:
     -f      Specify the cache file of the PUPA. If not specified,
-            pupa.cache file will be used in the current directory.
+            pupa.store file will be used in the current directory.
 ```
 
 

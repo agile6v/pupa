@@ -13,9 +13,9 @@ endif
 LIB_PATH=/usr/local/lib
 INC_PATH=/usr/local/include/pupa
 
-PUPA_STATIC_OBJS = pupa.o pupa_cache.o pupa_shm.o
-PUPA_SHARED_OBJS = pupa_cache.lo pupa_shm.lo pupa.lo
-HEADER_FILES = pupa.h pupa_config.h pupa_cache.h pupa_shm.h
+PUPA_STATIC_OBJS = pupa.o pupa_store.o pupa_shm.o
+PUPA_SHARED_OBJS = pupa_store.lo pupa_shm.lo pupa.lo
+HEADER_FILES = pupa.h pupa_config.h pupa_store.h pupa_shm.h
 
 ALL_OBJS = $(PUPA_STATIC_OBJS) $(PUPA_SHARED_OBJS)
 

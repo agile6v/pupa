@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#define DEFAULT_CACHE_FILE      "./pupa.cache"
+#define DEFAULT_CACHE_FILE      "./pupa.store"
 
 
 static void usage(const char *prog)
@@ -25,7 +25,7 @@ static void usage(const char *prog)
         "    stat    Statistics and Information about the pupa cache.\n\n"
         "Options:\n"
         "    -f      Specify the cache file of the PUPA. If not specified, \n"
-        "            pupa.cache file will be used in the current directory.\n",
+        "            pupa.store file will be used in the current directory.\n",
         prog);
 }
 

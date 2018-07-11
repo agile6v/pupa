@@ -90,7 +90,7 @@ int pupa_shm_init(pupa_ctx_t *ctx, int op_type)
 
 int pupa_shm_sync(pupa_ctx_t *ctx)
 {
-    if (msync(ctx->cache_hdr, ctx->shm.size, MS_SYNC) != 0) {
+    if (msync(ctx->store_hdr, ctx->shm.size, MS_SYNC) != 0) {
         return PUPA_ERROR;
     }
 
@@ -99,7 +99,7 @@ int pupa_shm_sync(pupa_ctx_t *ctx)
 
 int pupa_shm_fini(pupa_ctx_t *ctx)
 {
-    if (munmap(ctx->cache_hdr, ctx->shm.size) != PUPA_OK) {
+    if (munmap(ctx->store_hdr, ctx->shm.size) != PUPA_OK) {
         //  TODO:   error log
         return PUPA_ERROR;
     }

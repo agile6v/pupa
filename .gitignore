@@ -2,5 +2,5 @@
 *.lo
 *.o
 *.a
-*pupa.cache
+*pupa.store
 .gitignore

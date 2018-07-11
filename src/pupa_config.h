@@ -17,7 +17,7 @@ typedef struct pupa_ctx_s pupa_ctx_t;
 #include <string.h>
 
 #include "pupa_shm.h"
-#include "pupa_cache.h"
+#include "pupa_store.h"
 
 #define PUPA_OP_TYPE_R      1
 #define PUPA_OP_TYPE_RW     2
