@@ -2,7 +2,7 @@
 
 ### About
 
-`pupa` is simple、efficient and lock-free key-value for read operations.
+`pupa` is simple、efficient、persistence and lock-free key-value library.
 
 ### Memory Layout
 ![mem_layout][mem_layout]
