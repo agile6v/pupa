@@ -2,6 +2,7 @@
 
 ### About
 
+`pupa` is simple、efficient and lock-free key-value for read operations.
 
 ### Memory Layout
 ![mem_layout][mem_layout]
@@ -10,11 +11,21 @@ The memory layout of key-value store consists of 4 parts: Header、Item、Key an
 
 `Header` is the management information area of key-value.
 
-`Item` is the index area of key-value and contains a fixed length array of N item structure.
+`Item` is the index area of key-value and contains a fixed length array of N `pupa_store_item_t` structure. Each item stores the offset and length of Key & Value.
 
-`Key` is
+`Key` is area which stores the data of Key and ends with '\0'.
 
-`Value`
+`Value` is area which stores the data of Value and ends with '\0'.
+
+##### Memory size
+
+Header: 120byte (fixed)
+
+Item: key_count * 20byte * 2
+
+Key: key_count * 64byte (average_key_len) * 2
+
+Value: key_count * 256byte (average_value_len) * 2
 
 ### SDK
 
@@ -22,13 +33,6 @@ The memory layout of key-value store consists of 4 parts: Header、Item、Key an
 
 * [C/C++]()
 
-* [Lua]()
-
-* [PHP]()
-
-* [Python]()
-
-* [Java]()
 
 ### Tool
 
