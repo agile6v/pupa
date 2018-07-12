@@ -1,4 +1,4 @@
-# pupa key-value store
+# pupa key-value library
 
 ### About
 
@@ -13,9 +13,9 @@ The memory layout of key-value store consists of 4 parts: Header、Item、Key an
 
 `Item` is the index area of key-value and contains a fixed length array of N `pupa_store_item_t` structure. Each item stores the offset and length of Key & Value.
 
-`Key` is area which stores the data of Key and ends with '\0'.
+`Key` is area which stores the data of Key ends with '\0'.
 
-`Value` is area which stores the data of Value and ends with '\0'.
+`Value` is area which stores the data of Value ends with '\0'.
 
 ##### Memory size
 
