@@ -13,9 +13,9 @@ static int  pupa_store_item_compare(const void *p1, const void *p2);
 static void pupa_store_item_make_mirror(pupa_ctx_t *ctx);
 static int  pupa_store_item_add(pupa_ctx_t *ctx, pupa_store_item_t *store_item,
                                 pupa_str_t *key, pupa_str_t *value);
-static int  pupa_store_item_replace(pupa_ctx_t *       ctx,
+static int  pupa_store_item_replace(pupa_ctx_t *ctx,
                                     pupa_store_item_t *store_item,
-                                    pupa_str_t *       value);
+                                    pupa_str_t *value);
 static int  pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
                                         char **address);
 static int  pupa_store_key_compaction(pupa_ctx_t *ctx, pupa_str_t *key,

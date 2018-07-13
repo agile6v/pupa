@@ -6,7 +6,7 @@
 
 
 
-* Initialize the pupa cache.
+* Initialize the pupa store.
 
     * filename - A normal file which stores memory data.
     * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `PUPAOpTypeR`.
@@ -33,7 +33,7 @@
     func PUPASet(key string, value string) error
     ```
 
-* Get the information & statistics about pupa cache. It will return data in json format.
+* Get the information & statistics about pupa store. It will return data in json format.
     ```golang
     func PUPAStats() (string, error)
     ```
