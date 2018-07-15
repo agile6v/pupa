@@ -17,7 +17,7 @@ const (
 )
 
 
-func PUPAInit(filename string, keyCount int, opType int) error {
+func Init(filename string, keyCount int, opType int) error {
     ret := C.pupa_init(C.CString(filename), C.int(keyCount), C.int(opType))
     if ret != 0 {
         return errors.New("Failed to initialize pupa.")
@@ -27,7 +27,7 @@ func PUPAInit(filename string, keyCount int, opType int) error {
 }
 
 
-func PUPADel(key string) error {
+func Delete(key string) error {
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -41,7 +41,7 @@ func PUPADel(key string) error {
 }
 
 
-func PUPAGet(key string) (string, error) {
+func Get(key string) (string, error) {
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -57,7 +57,7 @@ func PUPAGet(key string) (string, error) {
 }
 
 
-func PUPASet(key string, value string) error {
+func Set(key string, value string) error {
     key_str := &C.struct_pupa_str_s{}
     key_str.len = C.int(len(key))
     key_str.data = C.CString(key)
@@ -75,7 +75,7 @@ func PUPASet(key string, value string) error {
 }
 
 
-func PUPAStats() (string, error) {
+func Stats() (string, error) {
     stat_str := &C.struct_pupa_str_s{}
 
     ret := C.pupa_stats(stat_str)
@@ -87,7 +87,7 @@ func PUPAStats() (string, error) {
 }
 
 
-func PUPAFini() error {
+func Fini() error {
     ret := C.pupa_fini()
     if ret != 0 {
         return errors.New("Failed to fini ")

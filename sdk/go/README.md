@@ -14,33 +14,33 @@
 
 
     ```golang
-    func PUPAInit(filename string, keyCount int, opType int) error
+    func Init(filename string, keyCount int, opType int) error
     ```
 
 * Delete key-value data according to the specified key.
     ```golang
-    func PUPADel(key string) error
+    func Delete(key string) error
     ```
 
 
 * Get the value of the key. If the key does not exist then error is returned.
     ```golang
-    func PUPAGet(key string) (string, error)
+    func Get(key string) (string, error)
     ```
 
 * Set key with the value. If the key already exists, the value will be overwritten.
     ```golang
-    func PUPASet(key string, value string) error
+    func Set(key string, value string) error
     ```
 
 * Get the information & statistics about pupa store. It will return data in json format.
     ```golang
-    func PUPAStats() (string, error)
+    func Stats() (string, error)
     ```
 
 * End to use
     ```golang
-    func PUPAFini() error
+    func Fini() error
     ```
 
 **Note:** Please install the library of pupa before using this APIs.
@@ -61,7 +61,7 @@ func main() {
     var err error
     var key, value, stats string
 
-    err = pupa.PUPAInit("./pupa.store", 2, pupa.PUPAOpTypeRW)
+    err = pupa.Init("./pupa.store", 2, pupa.PUPAOpTypeRW)
     if err != nil {
         fmt.Println("error: ", err)
         return
@@ -71,14 +71,14 @@ func main() {
     key = "Hello"
     value = "pupa.PUPA"
 
-    err = pupa.PUPASet(key, value)
+    err = pupa.Set(key, value)
     if err != nil {
         fmt.Println("error: ", err)
         return
 
     }
 
-    stats, err = pupa.PUPAStats()
+    stats, err = pupa.Stats()
     if err != nil {
         fmt.Println("error: ", err)
         return
@@ -87,7 +87,7 @@ func main() {
 
     fmt.Println("** stat: ", stats)
 
-    value, err = pupa.PUPAGet(key)
+    value, err = pupa.Get(key)
     if err != nil {
         fmt.Println("error: ", err)
         return
@@ -96,14 +96,14 @@ func main() {
 
     fmt.Println("** Got " + key + " : " + value)
 
-    err = pupa.PUPADel(key)
+    err = pupa.Delete(key)
     if err != nil {
         fmt.Println("error: ", err)
         return
 
     }
 
-    stats, err = pupa.PUPAStats()
+    stats, err = pupa.Stats()
     if err != nil {
         fmt.Println("error: ", err)
         return
@@ -112,7 +112,7 @@ func main() {
 
     fmt.Println("** stat: ", stats)
 
-    err = pupa.PUPAFini()
+    err = pupa.Fini()
     if err != nil {
         fmt.Println("error: ", err)
         return

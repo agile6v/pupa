@@ -43,7 +43,7 @@ static int pt_stat(pupa_str_t *filename)
 
     ret = pupa_stats(&stat);
     if (ret != PUPA_OK) {
-        printf("Failed to execute pupa_stats.\n");
+        printf("Failed to perform pupa_stats.\n");
         return ret;
     }
 
