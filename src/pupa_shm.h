@@ -5,6 +5,10 @@
 #ifndef _PUPA_SHM_H
 #define _PUPA_SHM_H
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 struct pupa_shm_s {
     int     fd;
     char   *path;
@@ -16,5 +20,9 @@ struct pupa_shm_s {
 int pupa_shm_init(pupa_ctx_t *ctx, int op_type);
 int pupa_shm_sync(pupa_ctx_t *ctx);
 int pupa_shm_fini(pupa_ctx_t *ctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  //_PUPA_SHM_H

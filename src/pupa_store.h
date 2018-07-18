@@ -7,6 +7,10 @@
 
 #include "pupa_config.h"
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #define PUPA_KEY_AVERAGE_LEN        64
 #define PUPA_VALUE_AVERAGE_LEN      256
 
@@ -84,5 +88,9 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key);
 int pupa_store_stats(pupa_ctx_t *ctx, pupa_str_t *stat);
 int pupa_store_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
 int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  //_PUPA_STORE_H
