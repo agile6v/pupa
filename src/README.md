@@ -33,6 +33,8 @@ Value: key_count * 256byte (average_value_len) * 2
 
 * [C/C++]()
 
+* [Lua](https://github.com/agile6v/pupa/tree/master/sdk/lua)
+
 
 ### Tool
 
