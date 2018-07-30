@@ -35,7 +35,7 @@ static int pt_stat(pupa_str_t *filename)
     int         ret;
     pupa_str_t  stat;
 
-    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_R);
+    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_RO);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;
@@ -107,7 +107,7 @@ static int pt_get(pupa_str_t *key, pupa_str_t *filename)
     int         ret;
     pupa_str_t  value;
 
-    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_R);
+    ret = pupa_init(filename->data, 0, PUPA_OP_TYPE_RO);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;

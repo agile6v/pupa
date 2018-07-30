@@ -19,8 +19,8 @@ typedef struct pupa_ctx_s pupa_ctx_t;
 #include "pupa_shm.h"
 #include "pupa_store.h"
 
-#define PUPA_OP_TYPE_R      1
-#define PUPA_OP_TYPE_RW     2
+#define PUPA_OP_TYPE_RO     1   //  read-only
+#define PUPA_OP_TYPE_RW     2   //  read-write
 
 #define PUPA_OK             0
 #define PUPA_ERROR         -1

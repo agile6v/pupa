@@ -10,11 +10,15 @@
 #include <stdio.h>
 #include <errno.h>
 #include <signal.h>
+#include <time.h>
+
+#define DEFAULT_CACHE_FILE      "./pupa.store"
+#define DEFAULT_KEY_COUNT       10000
 
 static pid_t   parent_pid, child_pid;
 static pid_t  *child_pids;
 static int     process_num;
-static int     live;
+static int     live_process;
 
 static void usage(const char *prog)
 {
@@ -50,7 +54,7 @@ void signal_handler(int signo, siginfo_t *siginfo, void *ctx)
                 }
 
                 printf("The child process %d exited!\n", pid);
-                live--;
+                live_process--;
             }
         } else if (signo == SIGINT) {
             for (i = 0; i < (process_num + 1); i++) {
@@ -108,26 +112,99 @@ static int parse_cmd(int argc, char *argv[], int *process_num)
 
 static int write_process()
 {
+    int     ret, count, index;
+    char    key_buf[64];
+    char    val_buf[126];
+    pupa_str_t key, value;
+
     child_pid = getpid();
 
-    printf("Start to write operation %d !\n", child_pid);
+    printf("Start to write operation %d.\n", child_pid);
+    
+    ret = pupa_init(DEFAULT_CACHE_FILE, DEFAULT_KEY_COUNT, PUPA_OP_TYPE_RW);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return ret;
+    }
 
-    sleep(50);
+    memset(val_buf, 1, sizeof(val_buf) - 1);
+    value.data = val_buf;
+    value.len = sizeof(val_buf) - 1;
+    value.data[value.len] = '\0';
 
-    printf("write process exited!\n");
+    key.data = key_buf;
+
+    srand((int) time(0));
+    count = 0;
+
+    for (;;) {
+        index = count + (int) (10000.0 * rand() / (RAND_MAX + 1.0));
+
+        key.len = sprintf(key.data, "pupa-%d", index);
+
+        ret = pupa_set(&key, &value);
+        if (ret != PUPA_OK) {
+            printf("Failed to execute pupa_set.\n");
+            break;
+        }
+
+        if (count++ == 2147483647) {
+            count = 0;
+        }
+
+        usleep(5);
+    }
+
+    pupa_fini();
 
     return 0;
 }
 
 static int read_process()
 {
-    child_pid = getpid();
+    int     ret, count, index;
+    char    key_buf[64];
+    char    val_buf[126];
+    pupa_str_t key, value;
 
+    child_pid = getpid();
     printf("Start to read operation %d !\n", child_pid);
 
-    sleep(50);
+    ret = pupa_init(DEFAULT_CACHE_FILE, DEFAULT_KEY_COUNT, PUPA_OP_TYPE_RO);
+    if (ret != PUPA_OK) {
+        printf("Failed to initialize pupa.\n");
+        return ret;
+    }
 
-    printf("read process exited!\n");
+    key.data = key_buf;
+    value.data = val_buf;
+
+    srand((int) time(0));
+    count = 0;
+
+    for (;;) {
+        index = count + (int) (10000.0 * rand() / (RAND_MAX + 1.0));
+
+        key.len = sprintf(key.data, "pupa-%d", index);
+
+        ret = pupa_get(&key, &value);
+        if (ret == PUPA_NOT_FOUND) {
+            continue;
+        }
+
+        if (ret != PUPA_OK) {
+            printf("Failed to get %.*s.\n", key.len, key.data);
+            break;
+        }
+
+        if (count++ == 2147483647) {
+            count = 0;
+        }
+
+        usleep(2);
+    }
+
+    pupa_fini();
     return 0;
 }
 
@@ -204,8 +281,8 @@ int main(int argc, char *argv[])
     }
 
     if (child_pid == 0) {
-        live = process_num + 1;
-        while (live) {
+        live_process = process_num + 1;
+        while (live_process) {
             sigsuspend(&set);
         }
     }
