@@ -135,6 +135,7 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 
     // Switch the cache item section if this key doesn't exist
     if (p_cache_item == NULL) {
+        p_item_section->used++;
         store_item_wrapper.key_offset = 0;
 #if (_PUPA_DARWIN)
         qsort_r(ctx->store_items_mirror, ctx->store_hdr->item_section.used,
@@ -145,8 +146,7 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
                 sizeof(pupa_store_item_t), _pupa_store_item_compare,
                 &store_item_wrapper);
 #endif
-
-        p_item_section->used++;
+        ctx->store_items = ctx->store_items_mirror;
     }
 
     p_item_section->id =

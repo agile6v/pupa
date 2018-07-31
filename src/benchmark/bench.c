@@ -11,9 +11,11 @@
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define DEFAULT_CACHE_FILE      "./pupa.store"
-#define DEFAULT_KEY_COUNT       10000
+#define DEFAULT_KEY_COUNT       10
 
 static pid_t   parent_pid, child_pid;
 static pid_t  *child_pids;
@@ -138,7 +140,7 @@ static int write_process()
     count = 0;
 
     for (;;) {
-        index = count + (int) (10000.0 * rand() / (RAND_MAX + 1.0));
+        index = count + (int) (9.0 * rand() / (RAND_MAX + 1.0));
 
         key.len = sprintf(key.data, "pupa-%d", index);
 
@@ -168,7 +170,7 @@ static int read_process()
     pupa_str_t key, value;
 
     child_pid = getpid();
-    printf("Start to read operation %d !\n", child_pid);
+    printf("Start to read operation %d.\n", child_pid);
 
     ret = pupa_init(DEFAULT_CACHE_FILE, DEFAULT_KEY_COUNT, PUPA_OP_TYPE_RO);
     if (ret != PUPA_OK) {
@@ -183,7 +185,7 @@ static int read_process()
     count = 0;
 
     for (;;) {
-        index = count + (int) (10000.0 * rand() / (RAND_MAX + 1.0));
+        index = count + (int) (9.0 * rand() / (RAND_MAX + 1.0));
 
         key.len = sprintf(key.data, "pupa-%d", index);
 
@@ -210,7 +212,7 @@ static int read_process()
 
 int make_process(int read_process_num)
 {
-    int   i, ret;
+    int   i, ret = 0;
     pid_t pid;
 
     //  create the write operation process
@@ -240,7 +242,7 @@ int make_process(int read_process_num)
         }
     }
 
-    return 0;
+    return ret;
 }
 
 int main(int argc, char *argv[])
