@@ -114,7 +114,7 @@ static int parse_cmd(int argc, char *argv[], int *process_num)
 
 static int write_process()
 {
-    int     ret, count, index;
+    int     ret, index;
     char    key_buf[64];
     char    val_buf[126];
     pupa_str_t key, value;
@@ -137,21 +137,18 @@ static int write_process()
     key.data = key_buf;
 
     srand((int) time(0));
-    count = 0;
 
     for (;;) {
-        index = count + (int) (9.0 * rand() / (RAND_MAX + 1.0));
+        index = (int) (9.0 * rand() / (RAND_MAX + 1.0));
 
         key.len = sprintf(key.data, "pupa-%d", index);
+
+        printf("key: %s\n", key.data);
 
         ret = pupa_set(&key, &value);
         if (ret != PUPA_OK) {
             printf("Failed to execute pupa_set.\n");
             break;
-        }
-
-        if (count++ == 2147483647) {
-            count = 0;
         }
 
         usleep(5);
@@ -164,7 +161,7 @@ static int write_process()
 
 static int read_process()
 {
-    int     ret, count, index;
+    int     ret, index;
     char    key_buf[64];
     char    val_buf[126];
     pupa_str_t key, value;
@@ -182,10 +179,9 @@ static int read_process()
     value.data = val_buf;
 
     srand((int) time(0));
-    count = 0;
 
     for (;;) {
-        index = count + (int) (9.0 * rand() / (RAND_MAX + 1.0));
+        index = (int) (9.0 * rand() / (RAND_MAX + 1.0));
 
         key.len = sprintf(key.data, "pupa-%d", index);
 
@@ -197,10 +193,6 @@ static int read_process()
         if (ret != PUPA_OK) {
             printf("Failed to get %.*s.\n", key.len, key.data);
             break;
-        }
-
-        if (count++ == 2147483647) {
-            count = 0;
         }
 
         usleep(2);
