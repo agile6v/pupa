@@ -7,8 +7,10 @@
 #include "pupa_config.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 #define DEFAULT_CACHE_FILE      "./pupa.store"
+#define DEFAULT_KEY_COUNT       1000
 
 
 static void usage(const char *prog)
@@ -25,7 +27,9 @@ static void usage(const char *prog)
         "    stat    Statistics and Information about the pupa cache.\n\n"
         "Options:\n"
         "    -f      Specify the cache file of the PUPA. If not specified, \n"
-        "            pupa.store file will be used in the current directory.\n",
+        "            pupa.store file will be used in the current directory.\n"
+        "    -n      Specify the number of the key. If not specified,\n"
+        "            default is 1000.\n",
         prog);
 }
 
@@ -55,11 +59,12 @@ static int pt_stat(pupa_str_t *filename)
 }
 
 
-static int pt_set(pupa_str_t *key, pupa_str_t *value, pupa_str_t *filename)
+static int pt_set(pupa_str_t *key, pupa_str_t *value,
+                  int key_count, pupa_str_t *filename)
 {
     int         ret;
 
-    ret = pupa_init(filename->data, 2, PUPA_OP_TYPE_RW);
+    ret = pupa_init(filename->data, key_count, PUPA_OP_TYPE_RW);
     if (ret != PUPA_OK) {
         printf("Failed to initialize pupa.\n");
         return ret;
@@ -128,29 +133,47 @@ static int pt_get(pupa_str_t *key, pupa_str_t *filename)
 
 
 static int parse_cmd(int argc, char *argv[], char **cmd, pupa_str_t *key,
-                     pupa_str_t *value, pupa_str_t *filename)
+                     pupa_str_t *value, pupa_str_t *filename, int *key_count)
 {
-    int     key_idx;
+    int     c, ret = 0;
+    int     key_idx, cmd_idx;
     char   *command;
 
     if (argc < 2) {
         return -1;
     }
 
-    if (!strcmp(argv[1], "-f")) {
-        if (argc < 4) {
-            return -1;
+    cmd_idx = 1;
+
+    while ((c = getopt (argc, argv, "f:n:")) != -1) {
+        switch (c) {
+            case 'n':
+                cmd_idx += 2;
+                ret = atoi(optarg);
+                if (ret == -1) {
+                    printf("The parameter of \"n\" must be an positive integer.\n\n");
+                    return ret;
+                }
+                *key_count = ret;
+                break;
+            case 'f':
+                cmd_idx += 2;
+
+                filename->data = optarg;
+                filename->len = strlen(optarg);
+                break;
+            default:
+                break;
         }
-
-        command = argv[3];
-        key_idx = 4;
-
-        filename->data = argv[2];
-        filename->len = strlen(argv[2]);
-    } else {
-        command = argv[1];
-        key_idx = 2;
     }
+
+    if (cmd_idx != 1 && argc < 4) {
+        return -1;
+    }
+
+    key_idx = cmd_idx + 1;
+
+    command = argv[cmd_idx];
 
     if (!strcmp(command, "set")) {
         if (argc - key_idx != 2) {
@@ -180,19 +203,21 @@ static int parse_cmd(int argc, char *argv[], char **cmd, pupa_str_t *key,
 
 int main(int argc, char *argv[])
 {
-    int          ret;
+    int          ret, key_count;
     pupa_str_t   key, value;
     char        *cmd = NULL;
     pupa_str_t   filename = pupa_string(DEFAULT_CACHE_FILE);
 
-    ret = parse_cmd(argc, argv, &cmd, &key, &value, &filename);
+    key_count = DEFAULT_KEY_COUNT;
+
+    ret = parse_cmd(argc, argv, &cmd, &key, &value, &filename, &key_count);
     if (ret != 0) {
         usage(argv[0]);
         return 0;
     }
 
     if (!strcmp(cmd, "set")) {
-        ret = pt_set(&key, &value, &filename);
+        ret = pt_set(&key, &value, key_count, &filename);
     } else if (!strcmp(cmd, "get")) {
         ret = pt_get(&key, &filename);
     } else if (!strcmp(cmd, "del")) {
