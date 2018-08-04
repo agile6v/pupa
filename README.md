@@ -55,6 +55,8 @@ Commands:
 Options:
     -f      Specify the cache file of the PUPA. If not specified,
             pupa.store file will be used in the current directory.
+    -n      Specify the number of the key. If not specified,
+            default is 1000.
 ```
 
 
