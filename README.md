@@ -1,4 +1,4 @@
-# pupa key-value library
+# pupa key-value library [![Build Status](https://travis-ci.org/agile6v/pupa.svg?branch=master)](https://travis-ci.org/agile6v/pupa)
 
 ### About
 
