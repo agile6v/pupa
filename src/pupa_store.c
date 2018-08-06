@@ -444,10 +444,10 @@ static void pupa_store_item_make_mirror(pupa_ctx_t *ctx)
 int pupa_cache_dump(pupa_ctx_t *ctx)
 {
     int                i;
-    pupa_store_item_t *p_item;
+    pupa_store_item_t *p_item = NULL;
 
     DEBUG_LOG("------- PUPA DUMP -------");
-
+    (void) p_item;
     p_item = ctx->store_items;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
         DEBUG_LOG("index: %d", i);
