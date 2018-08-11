@@ -12,8 +12,8 @@ import (
 )
 
 const (
-    PUPAOpTypeR  = 1
-    PUPAOpTypeRW = 2
+    OPRO  = 1
+    OPRW  = 2
 )
 
 

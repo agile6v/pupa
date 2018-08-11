@@ -9,9 +9,9 @@
 * Initialize the pupa store.
 
     * filename - A normal file which stores memory data.
-    * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `PUPAOpTypeR`.    
+    * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `PUPAOpTypeR`.
     Note: keyCount will be ignored if the filename already exists.
-    * opType - Operation type, one of `PUPAOpTypeR` and `PUPAOpTypeRW`.
+    * opType - Operation type, one of `OPRO` and `OPRW`. `OPRO` for read only, `OPRW` for read write.
 
     ```golang
     func Init(filename string, keyCount int, opType int) error
@@ -46,6 +46,13 @@
 **Note:** Please install the library of pupa before using this APIs.
 
 
+#### Installation
+
+```shell
+sh install.sh
+```
+    
+
 #### Example
 
 ```golang
@@ -61,7 +68,7 @@ func main() {
     var err error
     var key, value, stats string
 
-    err = pupa.Init("./pupa.store", 2, pupa.PUPAOpTypeRW)
+    err = pupa.Init("./pupa.store", 2, pupa.OPRW)
     if err != nil {
         fmt.Println("error: ", err)
         return
