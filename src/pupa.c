@@ -39,8 +39,8 @@ int pupa_init(char *path, int key_count, int op_type)
     pupa_ctx.store_items = (pupa_store_item_t *) PUPA_STORE_GET_ADDR(
         pupa_ctx.store_hdr, pupa_ctx.store_hdr->item_section);
 
-    pupa_ctx.store_items_mirror =
-        (pupa_store_item_t *) PUPA_STORE_GET_MIRROR_ADDR(
+    pupa_ctx.store_items_snapshot =
+        (pupa_store_item_t *) PUPA_STORE_GET_SNAPSHOT_ADDR(
             pupa_ctx.store_hdr, pupa_ctx.store_hdr->item_section);
 
     pupa_ctx.init = 1;

@@ -51,7 +51,7 @@
 ```shell
 sh install.sh
 ```
-    
+
 
 #### Example
 

@@ -18,7 +18,7 @@ extern "C"{
 #define PUPA_STORE_SECTION_TWO      2
 
 
-#define PUPA_STORE_GET_SEC_MIRROR_ID(section)                                  \
+#define PUPA_STORE_GET_SEC_SNAPSHOT_ID(section)                                \
     ((section.id == PUPA_STORE_SECTION_ONE) ? PUPA_STORE_SECTION_TWO           \
                                             : PUPA_STORE_SECTION_ONE)
 
@@ -26,7 +26,7 @@ extern "C"{
     ((section.id == PUPA_STORE_SECTION_ONE) ? section.sec1_offset              \
                                             : section.sec2_offset)
 
-#define PUPA_STORE_GET_MIRROR_OFFSET(section)                                  \
+#define PUPA_STORE_GET_SNAPSHOT_OFFSET(section)                                \
     ((section.id == PUPA_STORE_SECTION_ONE) ? section.sec2_offset              \
                                             : section.sec1_offset)
 
@@ -35,7 +35,7 @@ extern "C"{
          ? (char *)store_hdr + section.sec1_offset                             \
          : (char *)store_hdr + section.sec2_offset)
 
-#define PUPA_STORE_GET_MIRROR_ADDR(store_hdr, section)                         \
+#define PUPA_STORE_GET_SNAPSHOT_ADDR(store_hdr, section)                       \
     ((section.id == PUPA_STORE_SECTION_ONE)                                    \
          ? (char *)store_hdr + section.sec2_offset                             \
          : (char *)store_hdr + section.sec1_offset)
@@ -72,7 +72,7 @@ struct pupa_ctx_s {
     pupa_shm_t         shm;
     pupa_store_hdr_t  *store_hdr;
     pupa_store_item_t *store_items;
-    pupa_store_item_t *store_items_mirror;
+    pupa_store_item_t *store_items_snapshot;
 };
 
 typedef struct {

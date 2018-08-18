@@ -17,7 +17,9 @@ The memory layout of key-value store consists of 4 parts: Header、Item、Key an
 
 `Value` is area which stores the data of Value ends with '\0'.
 
-##### Memory size
+#### Memory size
+
+Total Memory Size = Header + Item + Key + Value
 
 Header: 120byte (fixed)
 
@@ -50,10 +52,10 @@ Commands:
             For example: get key
     del     Delete the specified key.
             For example: del key
-    stat    Statistics and Information about the pupa cache.
+    stat    Statistics and Information about the pupa store.
 
 Options:
-    -f      Specify the cache file of the PUPA. If not specified,
+    -f      Specify the store file of the PUPA. If not specified,
             pupa.store file will be used in the current directory.
     -n      Specify the number of the key. If not specified,
             default is 1000.

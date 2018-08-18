@@ -10,7 +10,7 @@ static int _pupa_store_item_compare(void *p1, const void *p2, const void *arg);
 static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg);
 #endif
 static int  pupa_store_item_compare(const void *p1, const void *p2);
-static void pupa_store_item_make_mirror(pupa_ctx_t *ctx);
+static void pupa_store_item_make_snapshot(pupa_ctx_t *ctx);
 static int  pupa_store_item_add(pupa_ctx_t *ctx, pupa_store_item_t *store_item,
                                 pupa_str_t *key, pupa_str_t *value);
 static int  pupa_store_item_replace(pupa_ctx_t *ctx,
@@ -100,8 +100,8 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     pupa_store_section_t     *p_item_section;
     pupa_store_item_wrapper_t store_item_wrapper;
 
-    //  generate the mirror of the cache items
-    pupa_store_item_make_mirror(ctx);
+    //  generate the snapshot of the cache items
+    pupa_store_item_make_snapshot(ctx);
 
     p_item_section = &ctx->store_hdr->item_section;
 
@@ -111,13 +111,13 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
     store_item_wrapper.store_item.key_len = key->len + 1;
 
     p_cache_item = bsearch(&store_item_wrapper.store_item,
-                           ctx->store_items_mirror, p_item_section->used,
+                           ctx->store_items_snapshot, p_item_section->used,
                            sizeof(pupa_store_item_t), pupa_store_item_compare);
     if (p_cache_item == NULL) {
         DEBUG_LOG("Add key : %.*s - %.*s", key->len, key->data, value->len,
                   value->data);
         ret = pupa_store_item_add(
-            ctx, ctx->store_items_mirror + p_item_section->used, key, value);
+            ctx, ctx->store_items_snapshot + p_item_section->used, key, value);
     } else {
         DEBUG_LOG("Replace key(%.*s) with (%.*s)", key->len, key->data,
                   value->len, value->data);
@@ -138,19 +138,19 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
         p_item_section->used++;
         store_item_wrapper.key_offset = 0;
 #if (_PUPA_DARWIN)
-        qsort_r(ctx->store_items_mirror, ctx->store_hdr->item_section.used,
+        qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
                 sizeof(pupa_store_item_t), &store_item_wrapper,
                 _pupa_store_item_compare);
 #else
-        qsort_r(ctx->store_items_mirror, ctx->store_hdr->item_section.used,
+        qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
                 sizeof(pupa_store_item_t), _pupa_store_item_compare,
                 &store_item_wrapper);
 #endif
-        ctx->store_items = ctx->store_items_mirror;
+        ctx->store_items = ctx->store_items_snapshot;
     }
 
     p_item_section->id =
-            PUPA_STORE_GET_SEC_MIRROR_ID(ctx->store_hdr->item_section);
+            PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->item_section);
 
     return PUPA_OK;
 }
@@ -162,8 +162,8 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
     pupa_store_section_t *    p_item_section;
     pupa_store_item_wrapper_t store_item_wrapper;
 
-    //  generate the mirror of the cache items
-    pupa_store_item_make_mirror(ctx);
+    //  generate the snapshot of the cache items
+    pupa_store_item_make_snapshot(ctx);
 
     p_item_section = &ctx->store_hdr->item_section;
 
@@ -173,7 +173,7 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
     store_item_wrapper.store_item.key_len = key->len + 1;
 
     p_cache_item = bsearch(&store_item_wrapper.store_item,
-                           ctx->store_items_mirror, p_item_section->used,
+                           ctx->store_items_snapshot, p_item_section->used,
                            sizeof(pupa_store_item_t), pupa_store_item_compare);
     if (p_cache_item == NULL) {
         DEBUG_LOG("Not found key: %.*s", key->len, key->data);
@@ -190,11 +190,11 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
     store_item_wrapper.key_offset = 0;
 
 #if (_PUPA_DARWIN)
-    qsort_r(ctx->store_items_mirror, ctx->store_hdr->item_section.used,
+    qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
             sizeof(pupa_store_item_t), &store_item_wrapper,
             _pupa_store_item_compare);
 #else
-    qsort_r(ctx->store_items_mirror, ctx->store_hdr->item_section.used,
+    qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
             sizeof(pupa_store_item_t), _pupa_store_item_compare,
             &store_item_wrapper);
 #endif
@@ -225,7 +225,7 @@ static int pupa_store_item_add(pupa_ctx_t *ctx, pupa_store_item_t *store_item,
     {
         DEBUG_LOG("Start to compact the key section.");
 
-        offset = PUPA_STORE_GET_MIRROR_OFFSET(store_hdr->key_section);
+        offset = PUPA_STORE_GET_SNAPSHOT_OFFSET(store_hdr->key_section);
 
         ret = pupa_store_key_compaction(ctx, key, &p);
         if (ret != PUPA_OK) {
@@ -253,7 +253,7 @@ static int pupa_store_item_add(pupa_ctx_t *ctx, pupa_store_item_t *store_item,
     {
         DEBUG_LOG("Start to compact the value section.");
 
-        offset = PUPA_STORE_GET_MIRROR_OFFSET(store_hdr->value_section);
+        offset = PUPA_STORE_GET_SNAPSHOT_OFFSET(store_hdr->value_section);
 
         ret = pupa_store_value_compaction(ctx, value, &p);
         if (ret != PUPA_OK) {
@@ -290,7 +290,7 @@ static int pupa_store_item_replace(pupa_ctx_t        *ctx,
     {
         DEBUG_LOG("Start to compact the value section.");
 
-        offset = PUPA_STORE_GET_MIRROR_OFFSET(store_hdr->value_section);
+        offset = PUPA_STORE_GET_SNAPSHOT_OFFSET(store_hdr->value_section);
 
         ret = pupa_store_value_compaction(ctx, value, &p);
         if (ret != PUPA_OK) {
@@ -365,14 +365,14 @@ static int pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
     size_t             offset;
     pupa_store_item_t *p_cache_item;
 
-    p = PUPA_STORE_GET_MIRROR_ADDR(ctx->store_hdr,
+    p = PUPA_STORE_GET_SNAPSHOT_ADDR(ctx->store_hdr,
                                    ctx->store_hdr->value_section);
 
-    offset = PUPA_STORE_GET_MIRROR_OFFSET(ctx->store_hdr->value_section);
+    offset = PUPA_STORE_GET_SNAPSHOT_OFFSET(ctx->store_hdr->value_section);
 
     used_size = 0;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
-        p_cache_item = &ctx->store_items_mirror[i];
+        p_cache_item = &ctx->store_items_snapshot[i];
         memcpy(p + used_size,
                (char *) ctx->store_hdr + p_cache_item->value_offset,
                p_cache_item->value_len);
@@ -387,7 +387,7 @@ static int pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
     *address                           = p + used_size;
     ctx->store_hdr->value_section.used = used_size;
     ctx->store_hdr->value_section.id   =
-            PUPA_STORE_GET_SEC_MIRROR_ID(ctx->store_hdr->value_section);
+            PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->value_section);
 
     return PUPA_OK;
 }
@@ -401,13 +401,13 @@ static int pupa_store_key_compaction(pupa_ctx_t *ctx, pupa_str_t *key,
     size_t             offset;
     pupa_store_item_t *p_cache_item;
 
-    p = PUPA_STORE_GET_MIRROR_ADDR(ctx->store_hdr, ctx->store_hdr->key_section);
+    p = PUPA_STORE_GET_SNAPSHOT_ADDR(ctx->store_hdr, ctx->store_hdr->key_section);
 
-    offset = PUPA_STORE_GET_MIRROR_OFFSET(ctx->store_hdr->key_section);
+    offset = PUPA_STORE_GET_SNAPSHOT_OFFSET(ctx->store_hdr->key_section);
 
     used_size = 0;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
-        p_cache_item = &ctx->store_items_mirror[i];
+        p_cache_item = &ctx->store_items_snapshot[i];
         memcpy(p + used_size, (char *) ctx->store_hdr + p_cache_item->key_offset,
                p_cache_item->key_len);
         p_cache_item->key_offset = offset + used_size;
@@ -421,16 +421,16 @@ static int pupa_store_key_compaction(pupa_ctx_t *ctx, pupa_str_t *key,
     *address                         = p;
     ctx->store_hdr->key_section.used = used_size;
     ctx->store_hdr->key_section.id   =
-            PUPA_STORE_GET_SEC_MIRROR_ID(ctx->store_hdr->key_section);
+            PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->key_section);
 
     return PUPA_OK;
 }
 
-static void pupa_store_item_make_mirror(pupa_ctx_t *ctx)
+static void pupa_store_item_make_snapshot(pupa_ctx_t *ctx)
 {
     pupa_store_item_t *p_cache_items;
 
-    p_cache_items = (pupa_store_item_t *) PUPA_STORE_GET_MIRROR_ADDR(
+    p_cache_items = (pupa_store_item_t *) PUPA_STORE_GET_SNAPSHOT_ADDR(
         ctx->store_hdr, ctx->store_hdr->item_section);
 
     if (ctx->store_hdr->item_section.used) {
@@ -438,7 +438,7 @@ static void pupa_store_item_make_mirror(pupa_ctx_t *ctx)
                sizeof(pupa_store_item_t) * ctx->store_hdr->item_section.used);
     }
 
-    ctx->store_items_mirror = p_cache_items;
+    ctx->store_items_snapshot = p_cache_items;
 }
 
 int pupa_cache_dump(pupa_ctx_t *ctx)
@@ -457,7 +457,7 @@ int pupa_cache_dump(pupa_ctx_t *ctx)
                   (char *) ctx->store_hdr + p_item[i].value_offset);
     }
 
-    p_item = ctx->store_items_mirror;
+    p_item = ctx->store_items_snapshot;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
         DEBUG_LOG("index: %d", i);
         DEBUG_LOG("key: %.*s", p_item[i].key_len,
