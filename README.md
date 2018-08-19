@@ -40,7 +40,7 @@ Value: key_count * 256byte (average_value_len) * 2
 
 * [Golang](https://github.com/agile6v/pupa/tree/master/sdk/go)
 
-* [C/C++]()
+* [C/C++](https://github.com/agile6v/pupa/tree/master/src)
 
 * [Lua](https://github.com/agile6v/pupa/tree/master/sdk/lua)
 
