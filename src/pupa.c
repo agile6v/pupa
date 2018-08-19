@@ -4,8 +4,6 @@
 
 #include "pupa_config.h"
 
-#define PUPA_DEFAULT_KEY_COUNT 1000
-
 static pupa_ctx_t pupa_ctx;
 
 int pupa_init(char *path, int key_count, int op_type)

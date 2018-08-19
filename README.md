@@ -8,7 +8,7 @@
 * Lightweight: Less than 1000 lines code.
 * Persistence: Using mmap to persist the memory data to disk.
 * Lock-Free: Read & Write without lock.
-* Multi-Language SDK: You can choose the appropriate SDK to bring this library into your project.
+* Multi-Language API: You can choose the appropriate SDK to bring this library into your project.
 
 
 ### Memory Layout

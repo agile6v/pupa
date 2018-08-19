@@ -9,7 +9,7 @@
 * Initialize the pupa store.
 
     * filename - A normal file which stores memory data.
-    * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `PUPAOpTypeR`.
+    * keyCount - The maximum number of keys that can be stored. It will be ignored if `opType` is specified as `OPRO`.
     Note: keyCount will be ignored if the filename already exists.
     * opType - Operation type, one of `OPRO` and `OPRW`. `OPRO` for read only, `OPRW` for read write.
 
