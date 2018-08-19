@@ -1,8 +1,15 @@
 # pupa key-value library [![Build Status](https://travis-ci.org/agile6v/pupa.svg?branch=master)](https://travis-ci.org/agile6v/pupa)
 
-### About
+### Introduction
 
-`pupa` is lightweight、efficient、persistence and lock-free key-value library.
+`pupa` is a key-value library that implements MVCC. It has the following features:
+
+* Easy to use: API is simple and easy to understand, please refer to SDK documentation.
+* Lightweight: Less than 1000 lines code.
+* Persistence: Using mmap to persist the memory data to disk.
+* Lock-Free: Read & Write without lock.
+* Multi-Language SDK: You can choose the appropriate SDK to bring this library into your project.
+
 
 ### Memory Layout
 ![mem_layout][mem_layout]
@@ -63,3 +70,6 @@ Options:
 
 
 [mem_layout]: https://github.com/agile6v/pupa/blob/master/src/mem_layout.png
+
+### Limitation
+All write actions need to be locked in your program, which means you need to call them serially. Unless you can guarantee that only one write action is called at the same time. write actions: Delete & Set.
