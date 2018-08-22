@@ -2,13 +2,12 @@
  * Copyright (C) agile6v
  */
 
-
-
-#include "php.h"
-#include "php_ini.h"
+#include <php.h>
+#include "pupa_php.h"
 
 zend_function_entry pupa_functions[] = {
     ZEND_FE(pupa_init,  NULL)
+    ZEND_FE(pupa_fini,  NULL)
     ZEND_FE(pupa_get,   NULL)
     ZEND_FE(pupa_set,   NULL)
     ZEND_FE(pupa_del,   NULL)
@@ -33,14 +32,15 @@ zend_module_entry pupa_module_entry = {
 
 PHP_MINIT_FUNCTION(pupa)
 {
+    REGISTER_LONG_CONSTANT("PUPA_RO", 1, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("PUPA_RW", 2, CONST_CS | CONST_PERSISTENT);
+
     return SUCCESS;
 }
 
 
 PHP_MSHUTDOWN_FUNCTION(pupa)
 {
-    pupa_fini();
-
     return SUCCESS;
 }
 
@@ -55,25 +55,122 @@ PHP_MINFO_FUNCTION(pupa)
 
 ZEND_FUNCTION(pupa_init)
 {
+    int   ret;
+    long  key_count, op_type;
+    char *fileName;
 
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
+                &fileName, &key_count, &op_type) == FAILURE)
+    {
+        RETURN_FALSE;
+    }
+
+    ret = pupa_init(fileName, key_count, op_type);
+    if (ret != PUPA_OK) {
+        RETURN_FALSE;
+    }
+
+    RETURN_TRUE;
 }
+
+
+ZEND_FUNCTION(pupa_fini)
+{
+    int ret;
+
+    ret = pupa_fini();
+    if (ret != PUPA_OK) {
+        RETURN_FALSE;
+    }
+
+    RETURN_TRUE;
+}
+
 
 ZEND_FUNCTION(pupa_get)
 {
+    int         ret;
+    char       *p_key;
+    pupa_str_t  key, value;
 
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                &p_key) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    key.data = p_key;
+    key.len = strlen(p_key);
+
+    ret = pupa_get(&key, &value);
+    if (ret != PUPA_OK) {
+        RETURN_NULL();
+    }
+
+    RETURN_STRING(value.data, 1);
 }
+
 
 ZEND_FUNCTION(pupa_set)
 {
+    int         ret;
+    char       *p_key, *p_val;
+    pupa_str_t  key, value;
 
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
+                &p_key, &p_val) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    key.data = p_key;
+    key.len = strlen(p_key);
+
+    value.data = p_val;
+    value.len = strlen(p_val);
+
+    ret = pupa_set(&key, &value);
+    if (ret != PUPA_OK) {
+        RETURN_FALSE;
+    }
+
+    RETURN_TRUE;
 }
+
 
 ZEND_FUNCTION(pupa_del)
 {
+    int         ret;
+    char       *p_key;
+    pupa_str_t  key;
 
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
+                &p_key) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    key.data = p_key;
+    key.len = strlen(p_key);
+
+    ret = pupa_del(&key);
+    if (ret != PUPA_OK) {
+        RETURN_FALSE;
+    }
+
+    RETURN_TRUE;
 }
+
 
 ZEND_FUNCTION(pupa_stats)
 {
+    int         ret;
+    pupa_str_t  stat;
 
+    ret = pupa_stats(&stat);
+    if (ret != PUPA_OK) {
+        RETURN_NULL();
+    }
+
+    RETURN_STRING(stat.data, 1);
 }

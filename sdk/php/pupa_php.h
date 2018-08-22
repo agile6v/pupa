@@ -11,6 +11,8 @@
 #define PUPA_MODULE_NAME        "pupa"
 #define PUPA_MODULE_VERSION     "0.1"
 
+ZEND_FUNCTION(pupa_init);
+ZEND_FUNCTION(pupa_fini);
 ZEND_FUNCTION(pupa_get);
 ZEND_FUNCTION(pupa_set);
 ZEND_FUNCTION(pupa_del);
