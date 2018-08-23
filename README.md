@@ -1,6 +1,6 @@
-# pupa key-value library [![Build Status](https://travis-ci.org/agile6v/pupa.svg?branch=master)](https://travis-ci.org/agile6v/pupa)
+# pupa key-value library
 
-### Introduction
+[![Build Status](https://travis-ci.org/agile6v/pupa.svg?branch=master)](https://travis-ci.org/agile6v/pupa)
 
 `pupa` is a key-value library that implements MVCC. It has the following features:
 
@@ -9,6 +9,7 @@
 * Persistence: Using mmap to persist the memory data to disk.
 * Lock-Free: Read & Write without lock.
 * Multi-Language API: You can choose the appropriate SDK to bring this library into your project.
+* Data-shared: Data can be shared among processes.
 
 
 ### Memory Layout
@@ -16,7 +17,7 @@
 
 The memory layout of key-value store consists of 4 parts: Header、Item、Key and Value.
 
-`Header` is the management information area of key-value.
+`Header` is area which manages the information of key-value.
 
 `Item` is the index area of key-value and contains a fixed length array of N `pupa_store_item_t` structure. Each item stores the offset and length of Key & Value.
 
@@ -43,6 +44,9 @@ Value: key_count * 256byte (average_value_len) * 2
 * [C/C++](https://github.com/agile6v/pupa/tree/master/src)
 
 * [Lua](https://github.com/agile6v/pupa/tree/master/sdk/lua)
+
+* [PHP](https://github.com/agile6v/pupa/tree/master/sdk/php)
+
 
 
 ### Tool
