@@ -2,6 +2,10 @@
  * Copyright (C) agile6v
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <php.h>
 #include "pupa_php.h"
 

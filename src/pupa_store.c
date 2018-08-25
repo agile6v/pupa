@@ -472,7 +472,7 @@ int pupa_cache_dump(pupa_ctx_t *ctx)
 int pupa_store_stats(pupa_ctx_t *ctx, pupa_str_t *stat)
 {
     static char buf[1024];
-    char *      p = buf;
+    char       *p = buf;
 
     stat->len = sprintf(
         p,

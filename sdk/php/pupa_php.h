@@ -11,6 +11,10 @@
 #define PUPA_MODULE_NAME        "pupa"
 #define PUPA_MODULE_VERSION     "0.1"
 
+PHP_MINIT_FUNCTION(pupa);
+PHP_MSHUTDOWN_FUNCTION(pupa);
+PHP_MINFO_FUNCTION(pupa);
+
 ZEND_FUNCTION(pupa_init);
 ZEND_FUNCTION(pupa_fini);
 ZEND_FUNCTION(pupa_get);
