@@ -33,6 +33,9 @@ zend_module_entry pupa_module_entry = {
     STANDARD_MODULE_PROPERTIES
 };
 
+#ifdef COMPILE_DL_PHP_PUPA
+ZEND_GET_MODULE(pupa)
+#endif
 
 PHP_MINIT_FUNCTION(pupa)
 {

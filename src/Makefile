@@ -26,7 +26,7 @@ ALL_LIBS = $(SHARED_LIBS) $(STATIC_LIBS)
 all: $(ALL_OBJS) $(ALL_LIBS)
 
 $(SHARED_LIBS):
-	$(CC) $(CFLAGS) -o $@ $< -shared $(PUPA_SHARED_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< -shared -Wl,-soname,$@ $(PUPA_SHARED_OBJS)
 
 $(STATIC_LIBS):
 	ar rcs $@ $(PUPA_STATIC_OBJS)
