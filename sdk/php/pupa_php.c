@@ -62,17 +62,17 @@ PHP_MINFO_FUNCTION(pupa)
 
 ZEND_FUNCTION(pupa_init)
 {
-    int   ret;
+    int   ret, key_len;
     long  key_count, op_type;
     char *fileName;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sll",
-                &fileName, &key_count, &op_type) == FAILURE)
+                &fileName, &key_len, &key_count, &op_type) == FAILURE)
     {
         RETURN_FALSE;
     }
 
-    ret = pupa_init(fileName, key_count, op_type);
+    ret = pupa_init(fileName, (int) key_count, (int) op_type);
     if (ret != PUPA_OK) {
         RETURN_FALSE;
     }
@@ -96,12 +96,12 @@ ZEND_FUNCTION(pupa_fini)
 
 ZEND_FUNCTION(pupa_get)
 {
-    int         ret;
+    int         ret, key_len;
     char       *p_key;
     pupa_str_t  key, value;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
-                &p_key) == FAILURE)
+                &p_key, &key_len) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -122,10 +122,11 @@ ZEND_FUNCTION(pupa_set)
 {
     int         ret;
     char       *p_key, *p_val;
+    int         key_len, value_len;
     pupa_str_t  key, value;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
-                &p_key, &p_val) == FAILURE)
+                &p_key, &key_len, &p_val, &value_len) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -147,12 +148,12 @@ ZEND_FUNCTION(pupa_set)
 
 ZEND_FUNCTION(pupa_del)
 {
-    int         ret;
+    int         ret, key_len;
     char       *p_key;
     pupa_str_t  key;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
-                &p_key) == FAILURE)
+                &p_key, &key_len) == FAILURE)
     {
         RETURN_NULL();
     }
