@@ -10,7 +10,7 @@
     * key_count - The maximum number of keys that can be stored. It will be ignored if `op_type` is specified as `PUPA_OP_TYPE_RO`.
     Note: key_count will be ignored if the filename already exists.
     * op_type - Operation type. One of `PUPA_OP_TYPE_RO` and `PUPA_OP_TYPE_RW`. `PUPA_OP_TYPE_RO` for read only, `PUPA_OP_TYPE_RW` for read write.
-    * return - PUPA_OK if this function
+    * return - PUPA_OK if success, otherwise PUPA_ERROR
 
     ```c
     int pupa_init(char *path, int key_count, int op_type);
