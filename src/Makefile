@@ -2,12 +2,15 @@
 
 CC=gcc
 CFLAGS=-Wall -g -fPIC -D_GNU_SOURCE
+SO_LDFLAGS=
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 	CFLAGS += -D_PUPA_LINUX
+	SO_LDFLAGS=-Wl,-soname,$@
 else ifeq ($(UNAME), Darwin)
 	CFLAGS += -D_PUPA_DARWIN
+	SO_LDFLAGS=-Wl,-install_name,$@
 endif
 
 LIB_PATH=/usr/local/lib
@@ -26,7 +29,7 @@ ALL_LIBS = $(SHARED_LIBS) $(STATIC_LIBS)
 all: $(ALL_OBJS) $(ALL_LIBS)
 
 $(SHARED_LIBS):
-	$(CC) $(CFLAGS) -o $@ $< -shared -Wl,-soname,$@ $(PUPA_SHARED_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< -shared $(SO_LDFLAGS) $(PUPA_SHARED_OBJS)
 
 $(STATIC_LIBS):
 	ar rcs $@ $(PUPA_STATIC_OBJS)
