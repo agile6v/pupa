@@ -11,6 +11,13 @@
 #define PUPA_MODULE_NAME        "pupa"
 #define PUPA_MODULE_VERSION     "0.1"
 
+#if PHP_MAJOR_VERSION < 7
+#define _RETURN_STRING(str) RETURN_STRING(str, 1)
+#else
+#define _RETURN_STRING(str) RETURN_STRING(str)
+#endif
+
+
 PHP_MINIT_FUNCTION(pupa);
 PHP_MSHUTDOWN_FUNCTION(pupa);
 PHP_MINFO_FUNCTION(pupa);

@@ -13,7 +13,7 @@
     * return - true if success, otherwise false
 
     ```php
-    bool pupa_init(string path, int key_count, int op_type);
+    bool pupa_init(string $path, int key_count, int op_type);
     ```
 
 * Delete key-value data according to the specified key.

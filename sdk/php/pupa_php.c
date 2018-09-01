@@ -114,7 +114,7 @@ ZEND_FUNCTION(pupa_get)
         RETURN_NULL();
     }
 
-    RETURN_STRING(value.data, 1);
+    _RETURN_STRING(value.data);
 }
 
 
@@ -180,5 +180,5 @@ ZEND_FUNCTION(pupa_stats)
         RETURN_NULL();
     }
 
-    RETURN_STRING(stat.data, 1);
+    _RETURN_STRING(stat.data);
 }
