@@ -13,8 +13,10 @@
 
 #if PHP_MAJOR_VERSION < 7
 #define _RETURN_STRING(str) RETURN_STRING(str, 1)
+typedef int strsize_t;
 #else
 #define _RETURN_STRING(str) RETURN_STRING(str)
+typedef size_t strsize_t;
 #endif
 
 
