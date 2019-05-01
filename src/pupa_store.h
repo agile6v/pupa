@@ -68,10 +68,12 @@ typedef struct {
 } pupa_store_hdr_t;
 
 struct pupa_ctx_s {
-    uint8_t            init;  //  initialization switch
+    // initialization switch
+    uint8_t            init;
     pupa_shm_t         shm;
     pupa_store_hdr_t  *store_hdr;
     pupa_store_item_t *store_items;
+    // All write operations first modify the snapshot area.
     pupa_store_item_t *store_items_snapshot;
 };
 

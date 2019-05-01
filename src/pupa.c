@@ -27,10 +27,10 @@ int pupa_init(char *path, int key_count, int op_type)
         return ret;
     }
 
-    pupa_ctx.store_hdr = (pupa_store_hdr_t *)pupa_ctx.shm.data;
+    pupa_ctx.store_hdr = (pupa_store_hdr_t *) pupa_ctx.shm.data;
 
     if (!pupa_ctx.shm.exists) {
-        memcpy((char *)pupa_ctx.store_hdr, (char *)&store_hdr,
+        memcpy((char *) pupa_ctx.store_hdr, (char *) &store_hdr,
                sizeof(pupa_store_hdr_t));
     }
 

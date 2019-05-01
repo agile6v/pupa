@@ -5,7 +5,7 @@
 #include "pupa_store.h"
 
 #if (_PUPA_DARWIN)
-static int _pupa_store_item_compare(void *p1, const void *p2, const void *arg);
+static int _pupa_store_item_compare(void *arg, const void *p1, const void *p2);
 #else
 static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg);
 #endif
@@ -158,8 +158,8 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
 int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
 {
     int                       ret;
-    pupa_store_item_t *       p_cache_item;
-    pupa_store_section_t *    p_item_section;
+    pupa_store_item_t        *p_cache_item;
+    pupa_store_section_t     *p_item_section;
     pupa_store_item_wrapper_t store_item_wrapper;
 
     //  generate the snapshot of the cache items
@@ -184,6 +184,9 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
     if (ret != PUPA_OK) {
         return ret;
     }
+
+    memcpy(p_cache_item, p_cache_item + 1, sizeof(pupa_store_item_t) *
+            (p_item_section->used - (p_cache_item - ctx->store_items_snapshot) + 1));
 
     p_cache_item->key_len = ctx->store_hdr->key_section.size;
 
@@ -315,7 +318,7 @@ static int pupa_store_item_replace(pupa_ctx_t        *ctx,
 }
 
 #if (_PUPA_DARWIN)
-static int _pupa_store_item_compare(void *p1, const void *p2, const void *arg)
+static int _pupa_store_item_compare(void *arg, const void *p1, const void *p2)
 #else
 static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg)
 #endif
@@ -353,7 +356,11 @@ static int pupa_store_item_compare(const void *p1, const void *p2)
     p_store_item_wrapper = (pupa_store_item_wrapper_t *)
             ((char *) p1 - offsetof(pupa_store_item_wrapper_t, store_item));
 
+#if (_PUPA_DARWIN)
+    return _pupa_store_item_compare(p_store_item_wrapper, (void *) p1, p2);
+#else
     return _pupa_store_item_compare((void *) p1, p2, p_store_item_wrapper);
+#endif
 }
 
 static int pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
@@ -450,19 +457,21 @@ int pupa_cache_dump(pupa_ctx_t *ctx)
     (void) p_item;
     p_item = ctx->store_items;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
-        DEBUG_LOG("index: %d", i);
-        DEBUG_LOG("key: %.*s", p_item[i].key_len,
-                  (char *) ctx->store_hdr + p_item[i].key_offset);
-        DEBUG_LOG("value: %.*s", p_item[i].value_len,
+        DEBUG_LOG("index: %d, key: %.*s, value: %.*s", i,
+                  p_item[i].key_len,
+                  (char *) ctx->store_hdr + p_item[i].key_offset,
+                  p_item[i].value_len,
                   (char *) ctx->store_hdr + p_item[i].value_offset);
     }
 
+    DEBUG_LOG("--------------");
+
     p_item = ctx->store_items_snapshot;
     for (i = 0; i < ctx->store_hdr->item_section.used; i++) {
-        DEBUG_LOG("index: %d", i);
-        DEBUG_LOG("key: %.*s", p_item[i].key_len,
-                  (char *) ctx->store_hdr + p_item[i].key_offset);
-        DEBUG_LOG("value: %.*s", p_item[i].value_len,
+        DEBUG_LOG("index: %d, key: %.*s, value: %.*s", i,
+                  p_item[i].key_len,
+                  (char *) ctx->store_hdr + p_item[i].key_offset,
+                  p_item[i].value_len,
                   (char *) ctx->store_hdr + p_item[i].value_offset);
     }
 
