@@ -180,14 +180,6 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
         return PUPA_NOT_FOUND;
     }
 
-    ret = pupa_shm_sync(ctx);
-    if (ret != PUPA_OK) {
-        return ret;
-    }
-
-    memcpy(p_cache_item, p_cache_item + 1, sizeof(pupa_store_item_t) *
-            (p_item_section->used - (p_cache_item - ctx->store_items_snapshot) + 1));
-
     p_cache_item->key_len = ctx->store_hdr->key_section.size;
 
     store_item_wrapper.key_offset = 0;
@@ -202,11 +194,14 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
             &store_item_wrapper);
 #endif
 
-    p_item_section->id = (p_item_section->id == PUPA_STORE_SECTION_ONE)
-                             ? PUPA_STORE_SECTION_TWO
-                             : p_item_section->id;
-
+    p_item_section->id =
+            PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->item_section);
     p_item_section->used--;
+
+    ret = pupa_shm_sync(ctx);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
 
     return PUPA_OK;
 }
