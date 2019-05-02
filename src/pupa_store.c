@@ -4,11 +4,7 @@
 
 #include "pupa_store.h"
 
-#if (_PUPA_DARWIN)
-static int _pupa_store_item_compare(void *arg, const void *p1, const void *p2);
-#else
 static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg);
-#endif
 static int  pupa_store_item_compare(const void *p1, const void *p2);
 static void pupa_store_item_make_snapshot(pupa_ctx_t *ctx);
 static int  pupa_store_item_add(pupa_ctx_t *ctx, pupa_store_item_t *store_item,
@@ -20,6 +16,8 @@ static int  pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
                                         char **address);
 static int  pupa_store_key_compaction(pupa_ctx_t *ctx, pupa_str_t *key,
                                       char **address);
+static void pupa_sort(void *base, size_t n, size_t size, void *arg,
+                      int (*cmp)(const void *_a, const void *_b, void *arg));
 
 int32_t pupa_store_init(pupa_store_hdr_t *store_hdr, int key_count)
 {
@@ -128,29 +126,23 @@ int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value)
         return ret;
     }
 
-    ret = pupa_shm_sync(ctx);
-    if (ret != PUPA_OK) {
-        return ret;
-    }
-
     // Switch the cache item section if this key doesn't exist
     if (p_cache_item == NULL) {
         p_item_section->used++;
         store_item_wrapper.key_offset = 0;
-#if (_PUPA_DARWIN)
-        qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
-                sizeof(pupa_store_item_t), &store_item_wrapper,
-                _pupa_store_item_compare);
-#else
-        qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
-                sizeof(pupa_store_item_t), _pupa_store_item_compare,
-                &store_item_wrapper);
-#endif
+        pupa_sort(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
+                  sizeof(pupa_store_item_t), &store_item_wrapper,
+                  _pupa_store_item_compare);
         ctx->store_items = ctx->store_items_snapshot;
     }
 
     p_item_section->id =
             PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->item_section);
+
+    ret = pupa_shm_sync(ctx);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
 
     return PUPA_OK;
 }
@@ -304,11 +296,7 @@ static int pupa_store_item_replace(pupa_ctx_t        *ctx,
     return PUPA_OK;
 }
 
-#if (_PUPA_DARWIN)
-static int _pupa_store_item_compare(void *arg, const void *p1, const void *p2)
-#else
 static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg)
-#endif
 {
     int                        ret;
     char                      *store_hdr;
@@ -322,7 +310,6 @@ static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg)
 
     store_item_wrapper = (pupa_store_item_wrapper_t *) arg;
     store_hdr          = (char *) store_item_wrapper->ctx->store_hdr;
-
     if (store_item_wrapper->key_offset == 0) {
         ret = memcmp(store_hdr + ((pupa_store_item_t *) p1)->key_offset,
                      store_hdr + ((pupa_store_item_t *) p2)->key_offset,
@@ -332,7 +319,6 @@ static int _pupa_store_item_compare(const void *p1, const void *p2, void *arg)
                      store_hdr + ((pupa_store_item_t *) p2)->key_offset,
                      ((pupa_store_item_t *) p1)->key_len);
     }
-
     return ret;
 }
 
@@ -340,14 +326,11 @@ static int pupa_store_item_compare(const void *p1, const void *p2)
 {
     pupa_store_item_wrapper_t *p_store_item_wrapper;
 
+    // p1 is the target value, P2 is each value in the array.
     p_store_item_wrapper = (pupa_store_item_wrapper_t *)
             ((char *) p1 - offsetof(pupa_store_item_wrapper_t, store_item));
 
-#if (_PUPA_DARWIN)
-    return _pupa_store_item_compare(p_store_item_wrapper, (void *) p1, p2);
-#else
     return _pupa_store_item_compare((void *) p1, p2, p_store_item_wrapper);
-#endif
 }
 
 static int pupa_store_value_compaction(pupa_ctx_t *ctx, pupa_str_t *value,
@@ -524,4 +507,58 @@ int pupa_store_fini(pupa_ctx_t *ctx)
     }
 
     return PUPA_OK;
+}
+
+static int pupa_bsearch(void *elt, void *arg, void *base,
+                        size_t size, size_t low, size_t high,
+                        int (*cmp)(const void *_a, const void *_b, void *arg))
+{
+    int ret, mid;
+
+    if (high <= low) {
+        ret = cmp(elt, base + low * size, arg);
+        if (ret > 0) {
+            return low + 1;
+        }
+        return low;
+    }
+
+    mid = (low + high) / 2;
+
+    ret = cmp(elt, base + mid * size, arg);
+    if (ret == 0 ) {
+        return mid + 1;
+    } else if (ret > 0) {
+        return pupa_bsearch(elt, arg, base, size, mid + 1, high, cmp);
+    } else {
+        return pupa_bsearch(elt, arg, base, size, low, mid - 1, cmp);
+    }
+}
+
+// pupa_sort is implemented as the binary insertation sorting.
+// In our scenario, using the specified binary insertation sorting algorithm
+// performance is more better.
+static void pupa_sort(void *base, size_t n, size_t size, void *arg,
+                      int (*cmp)(const void *_a, const void *_b, void *arg))
+{
+    char *p;
+    int   pos, count;
+
+    count = n - 1;
+
+    p = (char *) malloc(size);
+    if (p == NULL) {
+        return;
+    }
+
+    // take the last element to compare to the previous one
+    memcpy(p, base + count * size , size);
+
+    pos = pupa_bsearch(p, arg, base, size, 0, count, cmp);
+    if (pos < count) {
+        memmove(base + (pos + 1) * size, base + pos * size, (count - pos) * size);
+        memcpy(base + pos * size, p, size);
+    }
+
+    free(p);
 }
