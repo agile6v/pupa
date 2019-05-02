@@ -180,19 +180,11 @@ int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key)
         return PUPA_NOT_FOUND;
     }
 
-    p_cache_item->key_len = ctx->store_hdr->key_section.size;
-
-    store_item_wrapper.key_offset = 0;
-
-#if (_PUPA_DARWIN)
-    qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
-            sizeof(pupa_store_item_t), &store_item_wrapper,
-            _pupa_store_item_compare);
-#else
-    qsort_r(ctx->store_items_snapshot, ctx->store_hdr->item_section.used,
-            sizeof(pupa_store_item_t), _pupa_store_item_compare,
-            &store_item_wrapper);
-#endif
+    if ((p_cache_item - ctx->store_items_snapshot + 1) < p_item_section->used) {
+        memcpy(p_cache_item, p_cache_item + 1,
+               sizeof(pupa_store_item_t) * (p_item_section->used -
+                       (p_cache_item - ctx->store_items_snapshot) + 1));
+    }
 
     p_item_section->id =
             PUPA_STORE_GET_SEC_SNAPSHOT_ID(ctx->store_hdr->item_section);
