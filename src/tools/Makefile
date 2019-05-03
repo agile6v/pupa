@@ -1,7 +1,7 @@
 .SUFFIXES: .c .o
 
 CC=gcc
-CFLAGS=-std=c99 -Wall -g
+CFLAGS=-Wall -g
 
 INC_PATH = -I/usr/local/include/pupa
 LIB_PATH = -lpupa

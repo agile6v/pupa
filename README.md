@@ -72,6 +72,7 @@ Options:
     -n      Specify the number of the key. If not specified,
             default is 1000.
 ```
+Note: Since the pupa.so is installed by default in the /usr/local/lib/, so set LD_LIBRARY_PATH=/usr/local/lib/ to make sure pupa_tool can be found it.
 
 
 [mem_layout]: https://github.com/agile6v/pupa/blob/master/src/mem_layout.png
