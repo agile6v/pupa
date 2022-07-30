@@ -17,6 +17,10 @@ int pupa_fini();
 
 int pupa_get(pupa_str_t *key, pupa_str_t *value);
 
+int pupa_get_by_ver(pupa_str_t *key, pupa_str_t *value, int version);
+
+int pupa_get_all_ver(pupa_str_t *key, pupa_str_t *values);
+
 int pupa_set(pupa_str_t *key, pupa_str_t *value);
 
 int pupa_del(pupa_str_t *key);

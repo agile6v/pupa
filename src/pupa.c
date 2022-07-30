@@ -17,7 +17,7 @@ int pupa_init(char *path, int key_count, int op_type)
     }
 
     if (op_type == PUPA_OP_TYPE_RW) {
-        pupa_ctx.shm.size = pupa_store_init(&store_hdr, key_count);
+        pupa_ctx.shm.size = pupa_store_init(&store_hdr, key_count, 3);
     }
 
     pupa_ctx.shm.path = strdup(path);
@@ -72,12 +72,37 @@ int pupa_get(pupa_str_t *key, pupa_str_t *value)
 {
     int ret;
 
-    ret = pupa_store_get(&pupa_ctx, key, value);
+    ret = pupa_store_get(&pupa_ctx, key, value, 0);
     if (ret != PUPA_OK) {
         return ret;
     }
 
     return PUPA_OK;
+}
+
+int pupa_get_by_ver(pupa_str_t *key, pupa_str_t *value, int version)
+{
+    int ret;
+
+    ret = pupa_store_get(&pupa_ctx, key, value, version);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
+    return PUPA_OK;
+}
+
+int pupa_get_all_ver(pupa_str_t *key, pupa_str_t *values)
+{
+    int ret;
+
+    ret = pupa_store_get_values(&pupa_ctx, key, values);
+    if (ret != PUPA_OK) {
+        return ret;
+    }
+
+    return PUPA_OK;
+
 }
 
 int pupa_set(pupa_str_t *key, pupa_str_t *value)

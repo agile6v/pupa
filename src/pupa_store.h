@@ -54,14 +54,18 @@ typedef struct {
 } pupa_store_section_t;
 
 typedef struct {
-    size_t   key_offset;
     size_t   value_offset;
-
-    uint32_t key_len;
     uint32_t value_len;
+} pupa_store_item_val_t;
+
+typedef struct {
+    size_t   key_offset;
+    uint32_t key_len;
+    int      val_cnt;
 } pupa_store_item_t;
 
 typedef struct {
+    int                   max_ver_num;      // the maximum number of history value
     pupa_store_section_t  item_section;
     pupa_store_section_t  key_section;
     pupa_store_section_t  value_section;
@@ -83,12 +87,13 @@ typedef struct {
     int64_t           key_offset;
 } pupa_store_item_wrapper_t;
 
-int32_t pupa_store_init(pupa_store_hdr_t *store_hdr, int key_count);
+int32_t pupa_store_init(pupa_store_hdr_t *store_hdr, int key_count, int max_ver_num);
 int     pupa_store_fini(pupa_ctx_t *ctx);
 
 int pupa_store_del(pupa_ctx_t *ctx, pupa_str_t *key);
 int pupa_store_stats(pupa_ctx_t *ctx, pupa_str_t *stat);
-int pupa_store_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
+int pupa_store_get(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value, int version);
+int pupa_store_get_values(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *values);
 int pupa_store_set(pupa_ctx_t *ctx, pupa_str_t *key, pupa_str_t *value);
 
 #ifdef __cplusplus

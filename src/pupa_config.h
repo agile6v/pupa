@@ -22,10 +22,12 @@ typedef struct pupa_ctx_s pupa_ctx_t;
 #define PUPA_OP_TYPE_RO     1   //  read-only
 #define PUPA_OP_TYPE_RW     2   //  read-write
 
-#define PUPA_OK             0
-#define PUPA_ERROR         -1
-#define PUPA_OVERFLOW      -2
-#define PUPA_NOT_FOUND     -3
+#define PUPA_OK                      0
+#define PUPA_ERROR                  -1
+#define PUPA_OVERFLOW               -2
+#define PUPA_NOT_FOUND              -3
+#define PUPA_NOT_FOUND_VALUE        -4
+#define PUPA_EXCEED_MAXIMUM_NUM     -5
 
 #define pupa_string(str)                                                       \
     {                                                                          \
